@@ -3,7 +3,6 @@
 **Bitcoin Tetris with SHA-256 Puzzles + Machine Learning AI + Sound Effects!**
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://polydeuces32.github.io/TetroHashUnlock/)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://python.org)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-ML-orange)](https://tensorflow.org/js)
 
@@ -88,17 +87,39 @@
 - **TensorFlow.js** - Machine learning framework
 - **Web Audio API** - Sound effects and music
 
-### Backend
-- **Python 3.8+** - Server and game logic
-- **Bitcoin Script** - Cryptographic puzzle system
-- **SHA-256** - Hash verification
-- **HTTP Server** - Local development server
-
 ### AI/ML
 - **Neural Networks** - Move prediction
 - **Feature Extraction** - Board state analysis
 - **Reinforcement Learning** - Adaptive gameplay
 - **Real-time Training** - Continuous improvement
+
+## 📁 Project Structure
+
+```
+TetroHashUnlock/
+├── 🎮 Game Files
+│   ├── index.html              # Main landing page
+│   ├── working.html            # Basic Tetris game
+│   ├── working_with_sound.html # Sound effects version
+│   ├── tetrohash_ml.html       # ML AI version
+│   └── ml_dashboard.html       # AI training dashboard
+├── 🤖 AI System
+│   ├── ml_ai_system.js         # Machine learning AI
+│   ├── ml_training_collector.js # Data collection
+│   └── sound_system.js         # Audio system
+├── 🐍 Python Backend
+│   ├── bitcoin_logic.py        # Bitcoin puzzle system
+│   └── reward.py               # SAT rewards system
+├── 📚 Documentation
+│   ├── README.md               # This file
+│   ├── ML_README.md            # AI system docs
+│   └── DEPLOYMENT.md           # Deployment guide
+└── 🔧 Configuration
+    ├── .gitignore              # Git ignore rules
+    ├── .github/workflows/      # GitHub Actions
+    ├── package.json            # Node.js dependencies
+    └── LICENSE                 # MIT License
+```
 
 ## 🚀 Quick Start
 
@@ -108,68 +129,14 @@
 git clone https://github.com/polydeuces32/TetroHashUnlock.git
 cd TetroHashUnlock
 
-# Start the server
-python3 server.py
-
 # Open in browser
-open http://localhost:8000
+open index.html
 ```
 
 ### GitHub Pages Deployment
 The project is automatically deployed to GitHub Pages:
 - **Main site**: `https://polydeuces32.github.io/TetroHashUnlock/`
 - **Individual games**: `https://polydeuces32.github.io/TetroHashUnlock/[game].html`
-
-## 📁 Project Structure
-
-```
-TetroHashUnlock/
-├── 🎮 Game Files
-│   ├── working.html              # Basic Tetris game
-│   ├── working_with_sound.html   # Sound effects version
-│   ├── tetrohash_ml.html         # ML AI version
-│   └── ml_dashboard.html         # AI training dashboard
-├── 🐍 Python Backend
-│   ├── ascii_tetris.py          # Core Tetris engine
-│   ├── bitcoin_logic.py         # Bitcoin puzzle system
-│   ├── reward.py                # SAT rewards system
-│   └── server.py                # HTTP server
-├── 🤖 AI System
-│   ├── ml_ai_system.js          # Machine learning AI
-│   ├── ml_training_collector.js # Data collection
-│   └── sound_system.js          # Audio system
-├── 📚 Documentation
-│   ├── README.md                # This file
-│   ├── ML_README.md             # AI system docs
-│   └── WEB_FRONTEND_README.md   # Frontend docs
-└── 🧪 Testing
-    ├── test_game.py             # Game tests
-    ├── test_sat_calculation.html # SAT calculator
-    └── debug_sat_rewards.html   # Debug tools
-```
-
-## 🎯 Game Modes Explained
-
-### 🧱 Normal Tetris
-The classic Tetris experience with Bitcoin rewards:
-- Clear lines to earn SATs
-- Score-based final rewards
-- Level progression
-- High score tracking
-
-### 🔐 Bitcoin Puzzle Mode
-Cryptographic puzzle solving:
-- Each tetromino has a hidden preimage
-- Target SHA-256 hash is displayed
-- Place the correct piece to solve
-- Earn bonus SATs for solving puzzles
-
-### 🤖 ML AI Mode
-Machine learning integration:
-- AI provides move suggestions
-- Real-time confidence scores
-- Learning from player behavior
-- Performance analytics dashboard
 
 ## 💰 SAT Rewards System
 
@@ -184,20 +151,6 @@ Machine learning integration:
 - **Line-based**: 1 SAT per line cleared
 - **Level-based**: 1 SAT per level reached
 - **High score bonuses**: 5-20 extra SATs
-
-### Example Calculation
-```
-Score: 5,000
-Lines: 10
-Level: 2
-
-Rewards:
-- Base: 1 SAT
-- Score: 5 SATs (5,000 ÷ 1,000)
-- Lines: 10 SATs
-- Level: 2 SATs
-- Total: 18 SATs
-```
 
 ## 🤖 AI System
 
@@ -222,19 +175,7 @@ Rewards:
 - **Volume controls** and mute options
 - **Web Audio API** for high-quality sound
 
-### Sound Effects
-- **Piece movement** - Satisfying click sounds
-- **Line clearing** - Ascending chord progressions
-- **Tetris (4 lines)** - Special victory melody
-- **Puzzle solving** - Victory fanfare
-- **Coin rewards** - Cascading coin drops
-
 ## 🧪 Testing & Debugging
-
-### Test Pages
-- **SAT Calculator**: `/calc` - Test reward calculations
-- **Debug Tools**: `/debug` - Debug SAT rewards
-- **Sound Test**: `/test` - Test audio system
 
 ### Debug Features
 - **Console logging** for all game events
@@ -250,18 +191,6 @@ The project is automatically deployed to GitHub Pages:
 2. GitHub Pages automatically builds and deploys
 3. Site available at `https://polydeuces32.github.io/TetroHashUnlock/`
 
-### Local Development
-```bash
-# Start development server
-python3 server.py
-
-# Access different game modes
-http://localhost:8000/working          # Basic game
-http://localhost:8000/sound            # Sound version
-http://localhost:8000/ml               # ML AI version
-http://localhost:8000/dashboard        # AI dashboard
-```
-
 ## 🤝 Contributing
 
 ### Development Setup
@@ -271,7 +200,6 @@ http://localhost:8000/dashboard        # AI dashboard
 4. Submit a pull request
 
 ### Code Style
-- **Python**: PEP 8 compliance
 - **JavaScript**: ES6+ with modern syntax
 - **HTML/CSS**: Semantic markup and modern CSS
 
