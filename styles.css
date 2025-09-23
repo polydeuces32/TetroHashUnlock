@@ -1,0 +1,625 @@
+/* TetroHashUnlock v2.0 - Modern Web UI Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto Mono', monospace;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.game-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+.game-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 10px;
+    background: linear-gradient(45deg, #ffd700, #ff6b35, #f7931e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+}
+
+.bitcoin-symbol {
+    color: #f7931e;
+    text-shadow: 0 0 20px rgba(247, 147, 30, 0.5);
+}
+
+.version {
+    font-size: 1.2rem;
+    color: #888;
+    margin-left: 10px;
+}
+
+.game-subtitle {
+    font-size: 1.2rem;
+    color: #ccc;
+    font-weight: 400;
+}
+
+/* Mode Selection */
+.mode-selection {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.mode-selection h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #ffd700;
+}
+
+.mode-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.mode-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.mode-btn:hover {
+    transform: translateY(-5px);
+    border-color: #ffd700;
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.mode-btn.selected {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.15);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.mode-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.mode-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #ffd700;
+}
+
+.mode-desc {
+    font-size: 1rem;
+    color: #ccc;
+}
+
+/* Game Area */
+.game-area {
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.game-area.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.game-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+    align-items: start;
+}
+
+/* Game Board */
+.game-board-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.game-board {
+    width: 300px;
+    height: 600px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid #ffd700;
+    border-radius: 10px;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(20, 1fr);
+    gap: 1px;
+    padding: 5px;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+}
+
+.cell {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.cell.filled {
+    background: #ffd700;
+    box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.5);
+    border: 1px solid #ffed4e;
+}
+
+.cell.current-piece {
+    background: #ff6b35;
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.6);
+    border: 1px solid #ff8c42;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.board-border {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 15px;
+    pointer-events: none;
+}
+
+/* Game Info Panel */
+.game-info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats-panel, .puzzle-panel, .wallet-panel, .next-piece-panel, .controls-panel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.stats-panel h3, .puzzle-panel h3, .wallet-panel h3, .next-piece-panel h3, .controls-panel h3 {
+    font-family: 'Orbitron', monospace;
+    color: #ffd700;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-label {
+    color: #ccc;
+    font-weight: 400;
+}
+
+.stat-value {
+    color: #ffd700;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Puzzle Panel */
+.puzzle-info {
+    margin-bottom: 15px;
+}
+
+.target-hash, .current-piece, .puzzle-status {
+    margin-bottom: 15px;
+}
+
+.target-hash label, .current-piece label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.hash-display {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    color: #ffd700;
+    word-break: break-all;
+    min-height: 40px;
+}
+
+.piece-name {
+    background: rgba(255, 107, 53, 0.2);
+    border: 1px solid #ff6b35;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    font-weight: 700;
+    color: #ff6b35;
+}
+
+.puzzle-status .status {
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.status.waiting {
+    background: rgba(255, 193, 7, 0.2);
+    border: 1px solid #ffc107;
+    color: #ffc107;
+}
+
+.status.solved {
+    background: rgba(40, 167, 69, 0.2);
+    border: 1px solid #28a745;
+    color: #28a745;
+}
+
+.status.wrong {
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+
+.check-btn {
+    width: 100%;
+    background: linear-gradient(45deg, #ff6b35, #f7931e);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.check-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+}
+
+.check-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Wallet Panel */
+.balance {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.balance-label {
+    color: #ccc;
+}
+
+.balance-amount {
+    color: #ffd700;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+.balance-unit {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.recent-reward {
+    background: rgba(40, 167, 69, 0.2);
+    border: 1px solid #28a745;
+    border-radius: 5px;
+    padding: 8px;
+    text-align: center;
+    color: #28a745;
+    font-weight: 700;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Next Piece Panel */
+.next-piece-display {
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    border-radius: 5px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 1px;
+    padding: 5px;
+    margin: 0 auto;
+}
+
+.next-piece-cell {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.next-piece-cell.filled {
+    background: #ff6b35;
+    box-shadow: inset 0 0 5px rgba(255, 107, 53, 0.5);
+}
+
+/* Controls Panel */
+.control-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+kbd {
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.8rem;
+    color: #ffd700;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content h2 {
+    font-family: 'Orbitron', monospace;
+    color: #ffd700;
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.final-stats {
+    margin-bottom: 30px;
+}
+
+.final-stat {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.final-label {
+    color: #ccc;
+}
+
+.final-value {
+    color: #ffd700;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #ff6b35, #f7931e);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.loading-screen.hidden {
+    display: none;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 215, 0, 0.3);
+    border-top: 4px solid #ffd700;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-content h2 {
+    font-family: 'Orbitron', monospace;
+    color: #ffd700;
+    margin-bottom: 10px;
+}
+
+.loading-content p {
+    color: #ccc;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .game-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .game-info {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .mode-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .game-board {
+        width: 250px;
+        height: 500px;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.game-area {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Coin Drop Animation */
+@keyframes coinDrop {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    50% { transform: translateY(0) rotate(180deg); opacity: 1; }
+    100% { transform: translateY(20px) rotate(360deg); opacity: 0; }
+}
+
+.coin-animation {
+    position: fixed;
+    font-size: 2rem;
+    z-index: 100;
+    animation: coinDrop 2s ease-out forwards;
+    pointer-events: none;
+}

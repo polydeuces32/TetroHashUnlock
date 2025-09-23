@@ -1,0 +1,37 @@
+# TetroHashUnlock v2.0 - Python Dependencies
+# Core dependencies for the Bitcoin Tetris game
+
+# HTTP Server (built-in, but listed for completeness)
+# http.server - Built into Python 3.8+
+
+# Hash functions (built-in)
+# hashlib - Built into Python 3.8+
+
+# Random number generation (built-in)
+# random - Built into Python 3.8+
+
+# File operations (built-in)
+# os - Built into Python 3.8+
+
+# Time operations (built-in)
+# time - Built into Python 3.8+
+
+# Threading (built-in)
+# threading - Built into Python 3.8+
+
+# Terminal operations (built-in)
+# termios, tty - Built into Python 3.8+ (Unix/Linux/macOS)
+
+# System operations (built-in)
+# sys - Built into Python 3.8+
+
+# Path operations (built-in)
+# pathlib - Built into Python 3.8+
+
+# Type hints (built-in)
+# typing - Built into Python 3.8+
+
+# Optional: For enhanced development
+# pytest>=6.0.0  # Uncomment for testing
+# black>=21.0.0   # Uncomment for code formatting
+# flake8>=3.8.0   # Uncomment for linting

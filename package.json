@@ -1,0 +1,49 @@
+{
+  "name": "tetrohash-unlock",
+  "version": "2.0.0",
+  "description": "Bitcoin Tetris with SHA-256 Puzzles + Machine Learning AI + Sound Effects",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 server.py",
+    "dev": "python3 server.py",
+    "test": "python3 test_game.py",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "echo 'Deploy via GitHub Pages'"
+  },
+  "keywords": [
+    "tetris",
+    "bitcoin",
+    "cryptocurrency",
+    "sha256",
+    "puzzle",
+    "machine-learning",
+    "ai",
+    "tensorflow",
+    "javascript",
+    "python",
+    "game"
+  ],
+  "author": "Giancarlo Vizhnay",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polydeuces32/TetroHashUnlock.git"
+  },
+  "homepage": "https://polydeuces32.github.io/TetroHashUnlock/",
+  "bugs": {
+    "url": "https://github.com/polydeuces32/TetroHashUnlock/issues"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.8.0"
+  },
+  "dependencies": {
+    "tensorflow": "^4.0.0"
+  },
+  "devDependencies": {},
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

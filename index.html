@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TetroHashUnlock v2.0 - Bitcoin Tetris with ML AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ffd700, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #ccc;
+            margin-bottom: 30px;
+        }
+
+        .bitcoin-symbol {
+            color: #f7931e;
+            text-shadow: 0 0 20px rgba(247, 147, 30, 0.5);
+        }
+
+        .version {
+            font-size: 1.2rem;
+            color: #888;
+            margin-left: 10px;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: #aaa;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: #ffd700;
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .game-desc {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #ffd700, #ff6b35);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            background: linear-gradient(45deg, #ffed4e, #ff8c42);
+            transform: scale(1.05);
+        }
+
+        .features {
+            margin: 50px 0;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .features h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffd700;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .feature-desc {
+            font-size: 1rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+
+        .github-link {
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .github-link:hover {
+            color: #ffed4e;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .game-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">
+                <span class="bitcoin-symbol">₿</span>
+                TetroHashUnlock
+                <span class="version">v2.0</span>
+            </h1>
+            <p class="subtitle">Bitcoin Tetris with SHA-256 Puzzles + Machine Learning AI + Sound Effects!</p>
+            <p class="description">
+                Experience the future of Tetris with Bitcoin rewards, cryptographic puzzles, 
+                and intelligent AI assistance. Clear lines to earn SATs, solve SHA-256 puzzles, 
+                and let machine learning enhance your gameplay!
+            </p>
+        </header>
+
+        <!-- Game Modes -->
+        <div class="game-grid">
+            <a href="working.html" class="game-card">
+                <div class="game-icon">🧱</div>
+                <h3 class="game-title">Normal Tetris</h3>
+                <p class="game-desc">Classic falling blocks with SAT rewards and coin sounds</p>
+                <button class="play-button">Play Now</button>
+            </a>
+
+            <a href="working_with_sound.html" class="game-card">
+                <div class="game-icon">🔊</div>
+                <h3 class="game-title">Sound Edition</h3>
+                <p class="game-desc">Full audio experience with coin drops and background music</p>
+                <button class="play-button">Play Now</button>
+            </a>
+
+            <a href="tetrohash_ml.html" class="game-card">
+                <div class="game-icon">🤖</div>
+                <h3 class="game-title">ML AI Edition</h3>
+                <p class="game-desc">Machine learning AI assistant with real-time predictions</p>
+                <button class="play-button">Play Now</button>
+            </a>
+
+            <a href="ml_dashboard.html" class="game-card">
+                <div class="game-icon">📊</div>
+                <h3 class="game-title">AI Dashboard</h3>
+                <p class="game-desc">Monitor AI performance and training metrics</p>
+                <button class="play-button">Open Dashboard</button>
+            </a>
+        </div>
+
+        <!-- Features -->
+        <section class="features">
+            <h2>🚀 Features</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">₿</div>
+                    <h3 class="feature-title">Bitcoin Integration</h3>
+                    <p class="feature-desc">SHA-256 hash puzzles with real Bitcoin Script logic</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="feature-title">SAT Rewards</h3>
+                    <p class="feature-desc">Earn SATs for clearing lines and solving puzzles</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">Machine Learning</h3>
+                    <p class="feature-desc">AI assistant learns from your gameplay patterns</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🔊</div>
+                    <h3 class="feature-title">Sound Effects</h3>
+                    <p class="feature-desc">Coin drops, music, and audio feedback</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">🎮</div>
+                    <h3 class="feature-title">Intuitive Controls</h3>
+                    <p class="feature-desc">Arrow keys and space bar for smooth gameplay</p>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">📈</div>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-desc">Live performance metrics and AI training stats</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                Built with ❤️ by <a href="https://github.com/polydeuces32" class="github-link">Giancarlo Vizhnay</a>
+            </p>
+            <p>
+                <a href="https://github.com/polydeuces32/TetroHashUnlock" class="github-link">View on GitHub</a> | 
+                <a href="ML_README.md" class="github-link">ML Documentation</a> | 
+                <a href="DEPLOYMENT.md" class="github-link">Deployment Guide</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                MIT License | TetroHashUnlock v2.0
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to game cards
+            const gameCards = document.querySelectorAll('.game-card');
+            gameCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Add click tracking (optional)
+            const playButtons = document.querySelectorAll('.play-button');
+            playButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    console.log('Game mode selected:', this.parentElement.querySelector('.game-title').textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

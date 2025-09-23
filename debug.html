@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TetroHashUnlock Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+        }
+        .debug-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: rgba(40, 167, 69, 0.3); }
+        .error { background: rgba(220, 53, 69, 0.3); }
+        .warning { background: rgba(255, 193, 7, 0.3); }
+        button {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #ffed4e;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧱 TetroHashUnlock Debug Page</h1>
+    
+    <div class="debug-panel">
+        <h2>Debug Information</h2>
+        <div id="debug-info">
+            <div class="status">Loading debug information...</div>
+        </div>
+        <button onclick="runTests()">Run Tests</button>
+        <button onclick="testGame()">Test Game</button>
+        <button onclick="goToMain()">Go to Main Game</button>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const debugInfo = document.getElementById('debug-info');
+            const status = document.createElement('div');
+            status.className = `status ${type}`;
+            status.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            debugInfo.appendChild(status);
+            console.log(message);
+        }
+
+        function runTests() {
+            log('Running debug tests...', 'warning');
+            
+            // Test 1: Check if scripts are loaded
+            if (typeof TetroHashGame !== 'undefined') {
+                log('✅ TetroHashGame class loaded', 'success');
+            } else {
+                log('❌ TetroHashGame class not found', 'error');
+            }
+            
+            if (typeof GameUI !== 'undefined') {
+                log('✅ GameUI class loaded', 'success');
+            } else {
+                log('❌ GameUI class not found', 'error');
+            }
+            
+            // Test 2: Check Web Crypto API
+            if (window.crypto && window.crypto.subtle) {
+                log('✅ Web Crypto API available', 'success');
+            } else {
+                log('⚠️ Web Crypto API not available, using fallback', 'warning');
+            }
+            
+            // Test 3: Check DOM elements
+            const gameBoard = document.getElementById('game-board');
+            if (gameBoard) {
+                log('✅ Game board element found', 'success');
+            } else {
+                log('❌ Game board element not found', 'error');
+            }
+            
+            // Test 4: Test simple game creation
+            try {
+                const testGame = new TetroHashGame();
+                log('✅ Game instance created successfully', 'success');
+                
+                // Test puzzle generation
+                const puzzle = testGame.generatePuzzle();
+                log(`✅ Puzzle generated: ${puzzle.targetHash.substring(0, 16)}...`, 'success');
+                
+            } catch (error) {
+                log(`❌ Error creating game: ${error.message}`, 'error');
+            }
+        }
+
+        function testGame() {
+            log('Testing game functionality...', 'warning');
+            
+            try {
+                const game = new TetroHashGame();
+                game.startGame('normal');
+                
+                log('✅ Game started successfully', 'success');
+                log(`Score: ${game.score}, Level: ${game.level}`, 'info');
+                
+                // Test piece movement
+                game.move(-1);
+                log('✅ Piece movement working', 'success');
+                
+                // Test puzzle mode
+                game.startGame('puzzle');
+                log('✅ Puzzle mode started', 'success');
+                log(`Target hash: ${game.targetHash.substring(0, 16)}...`, 'info');
+                
+            } catch (error) {
+                log(`❌ Game test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function goToMain() {
+            window.location.href = 'index.html';
+        }
+
+        // Auto-run tests on load
+        window.addEventListener('load', () => {
+            log('Debug page loaded', 'success');
+            setTimeout(runTests, 1000);
+        });
+    </script>
+
+    <!-- Load the game scripts -->
+    <script src="game.js"></script>
+    <script src="ui.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug SAT Rewards - TetroHashUnlock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+        }
+        .debug-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .debug-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .debug-button {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .debug-button:hover {
+            background: #ffed4e;
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .wallet-display {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .wallet-balance {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🐛 Debug SAT Rewards</h1>
+        
+        <div class="debug-panel">
+            <h3>💰 Wallet Status</h3>
+            <div class="wallet-display">
+                <div class="wallet-balance" id="wallet-balance">0</div>
+                <div>SATs</div>
+            </div>
+        </div>
+        
+        <div class="debug-panel">
+            <h3>🧪 Test Controls</h3>
+            <button class="debug-button" onclick="testClearLines(1)">Test 1 Line Clear</button>
+            <button class="debug-button" onclick="testClearLines(4)">Test 4 Line Clear (Tetris)</button>
+            <button class="debug-button" onclick="testSATReward(1)">Test SAT Notification</button>
+            <button class="debug-button" onclick="resetWallet()">Reset Wallet</button>
+            <button class="debug-button" onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div class="debug-panel">
+            <h3>📝 Debug Log</h3>
+            <div class="log" id="debug-log">Debug log will appear here...\n</div>
+        </div>
+    </div>
+
+    <script>
+        let walletBalance = 0;
+        let gameMode = 'normal';
+        
+        function log(message) {
+            const logDiv = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateWalletDisplay() {
+            document.getElementById('wallet-balance').textContent = walletBalance.toLocaleString();
+            log(`💰 Wallet updated: ${walletBalance} SATs`);
+        }
+        
+        function showSATReward(sats) {
+            log(`🎯 showSATReward called with ${sats} SATs`);
+            
+            // Create floating SAT reward notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(45deg, #ffd700, #ff6b35);
+                color: #000;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 1.2rem;
+                z-index: 1000;
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+                animation: satReward 2s ease-out forwards;
+            `;
+            notification.textContent = `+${sats} SAT${sats > 1 ? 's' : ''}!`;
+            
+            // Add CSS animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes satReward {
+                    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+                    20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+                    80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            log(`✅ SAT notification created and displayed`);
+            
+            // Remove notification after animation
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+                if (style.parentNode) {
+                    style.parentNode.removeChild(style);
+                }
+                log(`🗑️ SAT notification removed`);
+            }, 2000);
+        }
+        
+        function testClearLines(linesCleared) {
+            log(`🧹 Testing clearLines with ${linesCleared} lines, game mode: ${gameMode}`);
+            
+            if (linesCleared > 0) {
+                log(`🎯 Lines cleared: ${linesCleared}, game mode: ${gameMode}`);
+                
+                // Award SATs for line clears (1 SAT per line) - ALWAYS award in normal mode
+                if (gameMode === 'normal') {
+                    const satsEarned = linesCleared;
+                    walletBalance += satsEarned;
+                    
+                    // Show SAT reward notification
+                    showSATReward(satsEarned);
+                    
+                    log(`🎉 Earned ${satsEarned} SATs! Total: ${walletBalance}`);
+                } else {
+                    log(`❌ No SATs awarded - not in normal mode (mode: ${gameMode})`);
+                }
+                
+                updateWalletDisplay();
+            } else {
+                log(`❌ No lines cleared`);
+            }
+        }
+        
+        function testSATReward(sats) {
+            log(`🧪 Testing SAT reward notification: +${sats} SATs`);
+            showSATReward(sats);
+        }
+        
+        function resetWallet() {
+            walletBalance = 0;
+            updateWalletDisplay();
+            log(`🔄 Wallet reset to 0 SATs`);
+        }
+        
+        function clearLog() {
+            document.getElementById('debug-log').textContent = 'Debug log cleared...\n';
+        }
+        
+        // Initialize
+        log('🐛 Debug SAT Rewards initialized');
+        log(`🎮 Game mode: ${gameMode}`);
+        updateWalletDisplay();
+    </script>
+</body>
+</html>
