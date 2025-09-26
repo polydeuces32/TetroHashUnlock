@@ -643,10 +643,15 @@ class ModernTetroHashEngine {
         this.pieceX = Math.floor(this.WIDTH / 2) - 1;
         this.pieceY = 0;
         
+        // Check if game over
         if (this.collision(0, 0)) {
             this.gameOver = true;
             this.endGame();
+            return;
         }
+        
+        // Reset drop timer for new piece
+        this.lastDropTime = 0;
     }
     
     getRandomPiece() {
@@ -704,6 +709,13 @@ class ModernTetroHashEngine {
         }
     }
     
+    hardDrop() {
+        while (!this.collision(0, 1)) {
+            this.pieceY++;
+        }
+        this.lockPiece();
+    }
+    
     lockPiece() {
         for (let i = 0; i < this.currentPiece.shape.length; i++) {
             const [x, y] = this.currentPiece.shape[i];
@@ -748,11 +760,18 @@ class ModernTetroHashEngine {
     // Game Loop
     startGameLoop() {
         this.lastUpdate = performance.now();
+        this.lastDropTime = 0;
         this.gameLoop();
     }
     
     gameLoop(currentTime = 0) {
-        if (!this.isRunning || this.gameOver) return;
+        if (!this.isRunning || this.gameOver) {
+            if (this.animationFrame) {
+                cancelAnimationFrame(this.animationFrame);
+                this.animationFrame = null;
+            }
+            return;
+        }
         
         const deltaTime = currentTime - this.lastUpdate;
         this.lastUpdate = currentTime;
@@ -774,10 +793,14 @@ class ModernTetroHashEngine {
             this.elements.gameTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
         
-        // Auto-drop pieces
-        const dropInterval = Math.max(100, 1000 - (this.level * 50));
-        if (deltaTime > dropInterval) {
+        // Auto-drop pieces - accumulate time for proper timing
+        if (!this.lastDropTime) this.lastDropTime = 0;
+        this.lastDropTime += deltaTime;
+        
+        const dropInterval = Math.max(500, 1000 - (this.level * 50)); // Start at 1 second, decrease with level
+        if (this.lastDropTime >= dropInterval) {
             this.drop();
+            this.lastDropTime = 0; // Reset timer
         }
         
         // Update AI predictions
@@ -883,9 +906,12 @@ class ModernTetroHashEngine {
                 this.drop();
                 break;
             case 'ArrowUp':
-            case 'Space':
                 event.preventDefault();
                 this.rotate();
+                break;
+            case 'Space':
+                event.preventDefault();
+                this.hardDrop();
                 break;
             case 'KeyP':
                 event.preventDefault();
