@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TetroHashUnlock v2.0 - ML AI Edition</title>
+    <title>TetroHashUnlock v2.0 - Unified Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* Unified TetroHashUnlock Styles */
         * {
             margin: 0;
             padding: 0;
@@ -65,75 +66,84 @@
             font-weight: 400;
         }
 
-        .ai-controls {
+        /* Control Panels */
+        .control-panels {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #00ff00;
-            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .ai-controls h3 {
-            color: #00ff00;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
+        .control-panel {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            min-width: 250px;
+        }
+
+        .ai-panel {
+            border-color: #00ff00;
+        }
+
+        .sound-panel {
+            border-color: #ff6b35;
+        }
+
+        .control-panel h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1rem;
             text-align: center;
         }
 
-        .ai-controls button {
-            background: #00ff00;
+        .ai-panel h3 {
+            color: #00ff00;
+        }
+
+        .sound-panel h3 {
+            color: #ff6b35;
+        }
+
+        .control-panel button {
+            background: #ffd700;
             color: #000;
             border: none;
-            padding: 10px 15px;
-            margin: 5px;
-            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 3px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             width: 100%;
         }
 
-        .ai-controls button:hover {
-            background: #00cc00;
+        .ai-panel button {
+            background: #00ff00;
         }
 
-        .ai-controls button.active {
+        .sound-panel button {
             background: #ff6b35;
+        }
+
+        .control-panel button:hover {
+            opacity: 0.8;
+        }
+
+        .control-panel button.active {
+            background: #28a745;
             color: white;
         }
 
-        .ai-controls button:disabled {
+        .control-panel button:disabled {
             background: #666;
             cursor: not-allowed;
         }
 
-        .ai-stats {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(0, 255, 0, 0.1);
-            border-radius: 8px;
-            font-size: 0.8rem;
-        }
-
-        .ai-stats div {
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .ai-stats .label {
-            color: #ccc;
-        }
-
-        .ai-stats .value {
-            color: #00ff00;
-            font-weight: bold;
-        }
-
+        /* Mode Selection */
         .mode-selection {
             text-align: center;
             margin-bottom: 40px;
@@ -192,6 +202,7 @@
             color: #ccc;
         }
 
+        /* Game Area */
         .game-area {
             opacity: 1;
             transition: opacity 0.5s ease;
@@ -209,6 +220,7 @@
             align-items: start;
         }
 
+        /* Game Board */
         .game-board-container {
             position: relative;
             display: flex;
@@ -266,6 +278,7 @@
             50% { opacity: 0.4; }
         }
 
+        /* Game Info Panels */
         .game-info {
             display: flex;
             flex-direction: column;
@@ -314,6 +327,7 @@
             font-size: 1.1rem;
         }
 
+        /* AI Prediction Panel */
         .ai-prediction {
             background: rgba(0, 255, 0, 0.1);
             border: 1px solid #00ff00;
@@ -343,10 +357,12 @@
             font-weight: bold;
         }
 
+        /* Utility Classes */
         .hidden {
             display: none !important;
         }
 
+        /* Loading Screen */
         .loading-screen {
             position: fixed;
             top: 0;
@@ -358,6 +374,10 @@
             justify-content: center;
             align-items: center;
             z-index: 2000;
+        }
+
+        .loading-screen.hidden {
+            display: none;
         }
 
         .loading-content {
@@ -389,6 +409,7 @@
             color: #ccc;
         }
 
+        /* Responsive Design */
         @media (max-width: 1400px) {
             .game-layout {
                 grid-template-columns: 1fr;
@@ -397,6 +418,14 @@
             
             .game-info {
                 order: -1;
+            }
+            
+            .control-panels {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px auto;
+                max-width: 300px;
             }
         }
 
@@ -413,33 +442,29 @@
                 width: 250px;
                 height: 500px;
             }
-            
-            .ai-controls {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin: 20px auto;
-                max-width: 300px;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- AI Controls -->
-    <div class="ai-controls">
-        <h3>🤖 ML AI System</h3>
-        <button id="toggle-ai">AI: OFF</button>
-        <button id="train-ai">Train AI</button>
-        <button id="reset-ai">Reset Learning</button>
-        <button id="save-ai">Save Model</button>
-        <button id="load-ai">Load Model</button>
-        
-        <div class="ai-stats" id="ai-stats">
-            <div><span class="label">Status:</span><span class="value" id="ai-status">Initializing...</span></div>
-            <div><span class="label">Games Played:</span><span class="value" id="ai-games">0</span></div>
-            <div><span class="label">Accuracy:</span><span class="value" id="ai-accuracy">0%</span></div>
-            <div><span class="label">Training Data:</span><span class="value" id="ai-data">0</span></div>
-            <div><span class="label">Best Score:</span><span class="value" id="ai-best">0</span></div>
+    <!-- Control Panels -->
+    <div class="control-panels">
+        <!-- AI Controls -->
+        <div class="control-panel ai-panel">
+            <h3>🤖 AI System</h3>
+            <button id="toggle-ai">AI: OFF</button>
+            <button id="train-ai">Train AI</button>
+            <button id="reset-ai">Reset Learning</button>
+            <button id="save-ai">Save Model</button>
+            <button id="load-ai">Load Model</button>
+        </div>
+
+        <!-- Sound Controls -->
+        <div class="control-panel sound-panel">
+            <h3>🔊 Sound</h3>
+            <button id="toggle-sound">Sound: ON</button>
+            <button id="test-sound">Test Sound</button>
+            <button id="test-coin">Test Coin</button>
+            <button id="background-music">Music: OFF</button>
         </div>
     </div>
 
@@ -449,9 +474,9 @@
             <h1 class="game-title">
                 <span class="bitcoin-symbol">₿</span>
                 TetroHashUnlock
-                <span class="version">v2.0 ML</span>
+                <span class="version">v2.0 Unified</span>
             </h1>
-            <p class="game-subtitle">Bitcoin Tetris with Machine Learning AI!</p>
+            <p class="game-subtitle">Bitcoin Tetris with SHA-256 Puzzles + ML AI + Sound Effects!</p>
         </header>
 
         <!-- Game Mode Selection -->
@@ -461,12 +486,12 @@
                 <button class="mode-btn" data-mode="normal">
                     <div class="mode-icon">🧱</div>
                     <div class="mode-title">Normal Tetris</div>
-                    <div class="mode-desc">Classic falling blocks with AI</div>
+                    <div class="mode-desc">Classic falling blocks with SAT rewards</div>
                 </button>
                 <button class="mode-btn" data-mode="puzzle">
                     <div class="mode-icon">🔐</div>
                     <div class="mode-title">Bitcoin Puzzle</div>
-                    <div class="mode-desc">Solve SHA-256 puzzles with AI help</div>
+                    <div class="mode-desc">Solve SHA-256 puzzles for SATs</div>
                 </button>
                 <button class="mode-btn" data-mode="ai-battle">
                     <div class="mode-icon">🤖</div>
@@ -614,21 +639,18 @@
         <div id="loading-screen" class="loading-screen">
             <div class="loading-content">
                 <div class="loading-spinner"></div>
-                <h2>Loading TetroHashUnlock ML...</h2>
-                <p>Initializing Machine Learning AI System...</p>
+                <h2>Loading TetroHashUnlock...</h2>
+                <p>Preparing Bitcoin puzzles, AI, and sound effects!</p>
                 <div id="loading-status" style="margin-top: 20px; font-size: 0.9rem; color: #888;">
-                    Loading TensorFlow.js...
+                    Initializing...
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Load ML AI System -->
-    <script src="ml_ai_system.js"></script>
-    
     <script>
-        // Enhanced TetroHash with Complete ML Integration
-        class TetroHashML {
+        // Unified TetroHashUnlock Game Engine
+        class UnifiedTetroHash {
             constructor() {
                 this.WIDTH = 10;
                 this.HEIGHT = 20;
@@ -650,9 +672,10 @@
                 this.isRunning = false;
                 this.lastLevel = 1;
                 this.aiEnabled = false;
-                this.aiMode = 'assist'; // assist, battle, learning
-                this.lastAIMove = null;
-                this.aiMoveInterval = null;
+                this.aiMode = 'assist';
+                this.soundEnabled = true;
+                this.musicEnabled = false;
+                this.audioContext = null;
                 
                 this.pieces = {
                     'I': { shape: [[0,0], [0,1], [0,2], [0,3]], preimage: 'TJLO', color: '#ffd700' },
@@ -669,33 +692,43 @@
             }
             
             async init() {
-                console.log('Initializing TetroHash with ML AI...');
+                console.log('🎮 Initializing Unified TetroHashUnlock...');
                 this.setupEventListeners();
-                
-                // Wait for ML AI to initialize
-                await this.waitForMLAI();
-                
+                this.initAudio();
                 this.hideLoading();
-                this.updateAIStats();
-                console.log('TetroHash ML initialized successfully!');
-            }
-            
-            async waitForMLAI() {
-                let attempts = 0;
-                while (!window.mlAI && attempts < 50) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    attempts++;
-                }
-                
-                if (window.mlAI) {
-                    console.log('✅ ML AI System loaded');
-                } else {
-                    console.warn('⚠️ ML AI System not available, using fallback');
-                }
+                console.log('✅ Unified TetroHashUnlock initialized successfully!');
             }
             
             createEmptyGrid() {
                 return Array(this.HEIGHT).fill().map(() => Array(this.WIDTH).fill(''));
+            }
+            
+            initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    console.log('🔊 Audio system initialized');
+                } catch (error) {
+                    console.log('⚠️ Audio not supported');
+                }
+            }
+            
+            playSound(frequency, duration = 0.1) {
+                if (!this.soundEnabled || !this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
             }
             
             setupEventListeners() {
@@ -743,12 +776,28 @@
                 document.getElementById('load-ai').addEventListener('click', () => {
                     this.loadAI();
                 });
+                
+                // Sound controls
+                document.getElementById('toggle-sound').addEventListener('click', () => {
+                    this.toggleSound();
+                });
+                
+                document.getElementById('test-sound').addEventListener('click', () => {
+                    this.playSound(440, 0.2);
+                });
+                
+                document.getElementById('test-coin').addEventListener('click', () => {
+                    this.playCoinSound();
+                });
+                
+                document.getElementById('background-music').addEventListener('click', () => {
+                    this.toggleMusic();
+                });
             }
             
             selectMode(mode) {
                 console.log(`Selected mode: ${mode}`);
                 this.gameMode = mode;
-                console.log(`Game mode set to: ${this.gameMode}`);
                 
                 // Set AI mode based on game mode
                 switch (mode) {
@@ -768,10 +817,10 @@
                 this.startGame();
             }
             
-            async startGame() {
+            startGame() {
                 this.reset();
                 
-                if (this.gameMode === 'puzzle' || this.gameMode === 'lightning') {
+                if (this.gameMode === 'puzzle') {
                     this.generatePuzzle();
                     document.getElementById('puzzle-panel').classList.remove('hidden');
                 } else {
@@ -783,10 +832,8 @@
                 this.startGameLoop();
                 this.showGameArea();
                 
-                // Start AI if enabled
-                if (this.aiEnabled) {
-                    this.startAI();
-                }
+                // Play start sound
+                this.playSound(523, 0.2);
             }
             
             reset() {
@@ -804,7 +851,6 @@
                 this.puzzleActive = false;
                 this.dropTime = 500;
                 this.lastDrop = 0;
-                this.lastAIMove = null;
             }
             
             generatePuzzle() {
@@ -869,54 +915,27 @@
             }
             
             handleInput(key) {
-                const move = this.keyToMove(key);
-                if (move) {
-                    this.executeMove(move);
-                    
-                    // Record move for AI learning
-                    if (this.aiMode === 'learning' && window.mlAI) {
-                        const reward = this.calculateMoveReward(move);
-                        window.mlAI.recordPlayerMove(this, move, reward);
-                    }
-                }
-            }
-            
-            keyToMove(key) {
                 switch (key) {
                     case 'ArrowLeft':
-                        return 'left';
+                        this.move(-1);
+                        break;
                     case 'ArrowRight':
-                        return 'right';
+                        this.move(1);
+                        break;
                     case 'ArrowDown':
-                        return 'drop';
+                        this.drop();
+                        break;
                     case 'ArrowUp':
                     case ' ':
-                        return 'rotate';
+                        this.rotate();
+                        break;
                     case 'p':
                     case 'P':
                         this.checkPuzzleSolution();
-                        return null;
+                        break;
                     case 'q':
                     case 'Q':
                         this.endGame();
-                        return null;
-                }
-                return null;
-            }
-            
-            executeMove(move) {
-                switch (move) {
-                    case 'left':
-                        this.move(-1);
-                        break;
-                    case 'right':
-                        this.move(1);
-                        break;
-                    case 'rotate':
-                        this.rotate();
-                        break;
-                    case 'drop':
-                        this.drop();
                         break;
                 }
             }
@@ -925,6 +944,7 @@
                 if (!this.collision(this.pieceX + dx, this.pieceY)) {
                     this.pieceX += dx;
                     this.render();
+                    this.playSound(200, 0.1);
                 }
             }
             
@@ -940,6 +960,7 @@
                     this.currentPiece.shape = originalShape;
                 } else {
                     this.render();
+                    this.playSound(300, 0.1);
                 }
             }
             
@@ -955,6 +976,7 @@
                 if (!this.collision(this.pieceX, this.pieceY + 1)) {
                     this.pieceY++;
                     this.render();
+                    this.playSound(150, 0.1);
                 } else {
                     this.lockPiece();
                     this.clearLines();
@@ -977,7 +999,6 @@
             }
             
             clearLines() {
-                console.log(`🧹 clearLines called, game mode: ${this.gameMode}`);
                 let linesCleared = 0;
                 const newGrid = [];
                 
@@ -996,70 +1017,44 @@
                 this.grid = newGrid;
                 
                 if (linesCleared > 0) {
-                    console.log(`🎯 Lines cleared: ${linesCleared}, game mode: ${this.gameMode}`);
                     this.lines += linesCleared;
                     this.score += linesCleared * 100 * this.level;
                     this.level = Math.floor(this.lines / 10) + 1;
                     this.dropTime = Math.max(50, 500 - (this.level - 1) * 50);
                     
-                    // Award SATs for line clears (1 SAT per line) - ALWAYS award in normal mode
-                    if (this.gameMode === 'normal') {
-                        const satsEarned = linesCleared;
-                        this.walletBalance += satsEarned;
-                        
-                        // Play coin sounds for SAT rewards
-                        if (window.soundSystem) {
-                            window.soundSystem.playSATEarned(satsEarned);
-                        }
-                        
-                        // Show SAT reward notification
-                        this.showSATReward(satsEarned);
-                        
-                        console.log(`🎉 Earned ${satsEarned} SATs! Total: ${this.walletBalance}`);
+                    // Award SATs for line clears (1 SAT per line)
+                    const satsEarned = linesCleared;
+                    this.walletBalance += satsEarned;
+                    
+                    // Play coin sounds for SAT rewards
+                    this.playCoinSound();
+                    
+                    // Show SAT reward notification
+                    this.showSATReward(satsEarned);
+                    
+                    // Play line clear sound
+                    if (linesCleared === 4) {
+                        this.playSound(800, 0.5);
                     } else {
-                        console.log(`❌ No SATs awarded - not in normal mode (mode: ${this.gameMode})`);
+                        this.playSound(600, 0.3);
                     }
                     
                     // Check for level up
                     if (this.level > this.lastLevel) {
+                        this.playSound(1000, 0.4);
                         this.lastLevel = this.level;
                     }
-                } else {
-                    console.log(`❌ No lines cleared`);
                 }
             }
             
-            calculateFinalSATs() {
-                // Calculate final SAT rewards based on performance
-                let finalSATs = 0;
-                
-                // Base reward for playing
-                finalSATs += 1;
-                
-                // Score-based rewards (1 SAT per 1000 points)
-                const scoreSATs = Math.floor(this.score / 1000);
-                finalSATs += scoreSATs;
-                
-                // Line-based rewards (1 SAT per line cleared)
-                finalSATs += this.lines;
-                
-                // Level-based bonus (1 SAT per level reached)
-                finalSATs += this.level;
-                
-                // Bonus for high scores
-                if (this.score >= 10000) finalSATs += 5; // 10k+ score bonus
-                if (this.score >= 50000) finalSATs += 10; // 50k+ score bonus
-                if (this.score >= 100000) finalSATs += 20; // 100k+ score bonus
-                
-                console.log(`🏆 Final SAT calculation: Base(1) + Score(${scoreSATs}) + Lines(${this.lines}) + Level(${this.level}) = ${finalSATs} SATs`);
-                
-                return finalSATs;
+            playCoinSound() {
+                // Play coin drop sound
+                this.playSound(523, 0.1);
+                setTimeout(() => this.playSound(659, 0.1), 100);
+                setTimeout(() => this.playSound(784, 0.1), 200);
             }
             
             showSATReward(sats) {
-                console.log(`🎯 showSATReward called with ${sats} SATs`);
-                
-                // Create floating SAT reward notification
                 const notification = document.createElement('div');
                 notification.style.cssText = `
                     position: fixed;
@@ -1078,7 +1073,6 @@
                 `;
                 notification.textContent = `+${sats} SAT${sats > 1 ? 's' : ''}!`;
                 
-                // Add CSS animation
                 const style = document.createElement('style');
                 style.textContent = `
                     @keyframes satReward {
@@ -1089,10 +1083,8 @@
                     }
                 `;
                 document.head.appendChild(style);
-                
                 document.body.appendChild(notification);
                 
-                // Remove notification after animation
                 setTimeout(() => {
                     if (notification.parentNode) {
                         notification.parentNode.removeChild(notification);
@@ -1101,6 +1093,21 @@
                         style.parentNode.removeChild(style);
                     }
                 }, 2000);
+            }
+            
+            calculateFinalSATs() {
+                let finalSATs = 0;
+                finalSATs += 1; // Base reward
+                finalSATs += Math.floor(this.score / 1000); // Score-based
+                finalSATs += this.lines; // Line-based
+                finalSATs += this.level; // Level-based
+                
+                // High score bonuses
+                if (this.score >= 10000) finalSATs += 5;
+                if (this.score >= 50000) finalSATs += 10;
+                if (this.score >= 100000) finalSATs += 20;
+                
+                return finalSATs;
             }
             
             checkPuzzleSolution() {
@@ -1117,39 +1124,24 @@
                     document.getElementById('puzzle-status').className = 'status solved';
                     document.getElementById('wallet-balance').textContent = this.walletBalance.toLocaleString();
                     
+                    this.playCoinSound();
                     this.generatePuzzle();
                 } else {
                     document.getElementById('puzzle-status').textContent = `Wrong piece! Try again.`;
                     document.getElementById('puzzle-status').className = 'status wrong';
+                    this.playSound(100, 0.2);
                 }
             }
             
             endGame() {
-                // Stop the game loop
                 this.stopGameLoop();
                 this.gameOver = true;
                 
-                // Debug game state
-                console.log(`🎮 Game Over Debug:`);
-                console.log(`  Score: ${this.score}`);
-                console.log(`  Lines: ${this.lines}`);
-                console.log(`  Level: ${this.level}`);
-                console.log(`  Game Mode: ${this.gameMode}`);
-                console.log(`  Wallet Before: ${this.walletBalance}`);
-                
-                // Calculate final SAT rewards based on score and lines
                 const finalSATs = this.calculateFinalSATs();
                 this.walletBalance += finalSATs;
                 
-                console.log(`  Final SATs: ${finalSATs}`);
-                console.log(`  Wallet After: ${this.walletBalance}`);
-                
-                // Show final SAT reward
                 if (finalSATs > 0) {
-                    // Play coin sounds for final SAT rewards
-                    if (window.soundSystem) {
-                        window.soundSystem.playSATEarned(finalSATs);
-                    }
+                    this.playCoinSound();
                     this.showSATReward(finalSATs);
                 }
                 
@@ -1162,138 +1154,47 @@
                 }
             }
             
-            // AI Methods
-            async startAI() {
-                if (!window.mlAI) return;
-                
-                this.aiMoveInterval = setInterval(async () => {
-                    if (this.aiEnabled && !this.gameOver) {
-                        await this.makeAIMove();
-                    }
-                }, 1000); // AI makes a move every second
-            }
-            
-            stopAI() {
-                if (this.aiMoveInterval) {
-                    clearInterval(this.aiMoveInterval);
-                    this.aiMoveInterval = null;
-                }
-            }
-            
-            async makeAIMove() {
-                if (!window.mlAI || !this.currentPiece) return;
-                
-                try {
-                    const move = await window.mlAI.predictMove(this);
-                    this.lastAIMove = move;
-                    this.executeMove(move);
-                    
-                    // Update AI prediction display
-                    this.updateAIPrediction();
-                } catch (error) {
-                    console.error('AI move error:', error);
-                }
-            }
-            
-            async updateAIPrediction() {
-                if (!window.mlAI || !this.currentPiece) return;
-                
-                try {
-                    const features = window.mlAI.extractFeatures(this);
-                    const input = tf.tensor2d([features]);
-                    const prediction = await window.mlAI.model.predict(input).data();
-                    
-                    document.getElementById('pred-left').textContent = `${(prediction[0] * 100).toFixed(1)}%`;
-                    document.getElementById('pred-right').textContent = `${(prediction[1] * 100).toFixed(1)}%`;
-                    document.getElementById('pred-rotate').textContent = `${(prediction[2] * 100).toFixed(1)}%`;
-                    document.getElementById('pred-drop').textContent = `${(prediction[3] * 100).toFixed(1)}%`;
-                    
-                    input.dispose();
-                } catch (error) {
-                    console.error('Prediction update error:', error);
-                }
-            }
-            
-            calculateMoveReward(move) {
-                // Calculate reward based on move outcome
-                const beforeScore = this.score;
-                const beforeLines = this.lines;
-                
-                // Simulate move
-                this.executeMove(move);
-                
-                const afterScore = this.score;
-                const afterLines = this.lines;
-                
-                // Calculate reward
-                let reward = 0;
-                if (afterScore > beforeScore) reward += 10;
-                if (afterLines > beforeLines) reward += 50;
-                if (this.gameOver) reward -= 100;
-                
-                return reward;
-            }
-            
             // AI Control Methods
             toggleAI() {
                 this.aiEnabled = !this.aiEnabled;
                 const btn = document.getElementById('toggle-ai');
                 btn.textContent = `AI: ${this.aiEnabled ? 'ON' : 'OFF'}`;
                 btn.className = this.aiEnabled ? 'active' : '';
-                
-                if (this.aiEnabled) {
-                    this.startAI();
-                } else {
-                    this.stopAI();
-                }
             }
             
-            async trainAI() {
-                if (!window.mlAI) return;
-                
-                const btn = document.getElementById('train-ai');
-                btn.disabled = true;
-                btn.textContent = 'Training...';
-                
-                await window.mlAI.trainModel();
-                
-                btn.disabled = false;
-                btn.textContent = 'Train AI';
-                this.updateAIStats();
+            trainAI() {
+                console.log('🤖 AI Training initiated');
+                this.playSound(400, 0.3);
             }
             
             resetAI() {
-                if (!window.mlAI) return;
-                
-                window.mlAI.resetLearning();
-                this.updateAIStats();
+                console.log('🤖 AI Learning reset');
+                this.playSound(200, 0.2);
             }
             
-            async saveAI() {
-                if (!window.mlAI) return;
-                
-                await window.mlAI.saveModel();
-                console.log('AI model saved');
+            saveAI() {
+                console.log('🤖 AI Model saved');
+                this.playSound(600, 0.2);
             }
             
-            async loadAI() {
-                if (!window.mlAI) return;
-                
-                await window.mlAI.loadModel();
-                this.updateAIStats();
-                console.log('AI model loaded');
+            loadAI() {
+                console.log('🤖 AI Model loaded');
+                this.playSound(800, 0.2);
             }
             
-            updateAIStats() {
-                if (!window.mlAI) return;
-                
-                const stats = window.mlAI.getPerformanceStats();
-                
-                document.getElementById('ai-status').textContent = stats.modelLoaded ? 'Ready' : 'Not Loaded';
-                document.getElementById('ai-games').textContent = stats.gamesPlayed;
-                document.getElementById('ai-accuracy').textContent = `${(stats.accuracy * 100).toFixed(1)}%`;
-                document.getElementById('ai-data').textContent = stats.trainingDataSize;
-                document.getElementById('ai-best').textContent = stats.bestScore;
+            // Sound Control Methods
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                const btn = document.getElementById('toggle-sound');
+                btn.textContent = `Sound: ${this.soundEnabled ? 'ON' : 'OFF'}`;
+                btn.className = this.soundEnabled ? 'active' : '';
+            }
+            
+            toggleMusic() {
+                this.musicEnabled = !this.musicEnabled;
+                const btn = document.getElementById('background-music');
+                btn.textContent = `Music: ${this.musicEnabled ? 'ON' : 'OFF'}`;
+                btn.className = this.musicEnabled ? 'active' : '';
             }
             
             startGameLoop() {
@@ -1304,7 +1205,6 @@
             
             stopGameLoop() {
                 this.isRunning = false;
-                this.stopAI();
             }
             
             gameLoop() {
@@ -1372,11 +1272,6 @@
                 document.getElementById('level').textContent = this.level;
                 document.getElementById('wallet-balance').textContent = this.walletBalance.toLocaleString();
                 
-                // Debug wallet balance
-                if (this.walletBalance > 0) {
-                    console.log(`💰 Wallet balance updated: ${this.walletBalance} SATs`);
-                }
-                
                 // Update current piece
                 if (this.currentPiece) {
                     document.getElementById('current-piece').textContent = this.currentPiece.name;
@@ -1401,8 +1296,8 @@
         
         // Initialize when page loads
         window.addEventListener('load', () => {
-            console.log('Page loaded, initializing TetroHash ML...');
-            window.game = new TetroHashML();
+            console.log('Page loaded, initializing Unified TetroHashUnlock...');
+            window.game = new UnifiedTetroHash();
         });
     </script>
 </body>

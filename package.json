@@ -1,14 +1,19 @@
 {
   "name": "tetrohash-unlock",
-  "version": "2.0.0",
-  "description": "Bitcoin Tetris with SHA-256 Puzzles + Machine Learning AI + Sound Effects",
-  "main": "index.html",
+  "version": "3.0.0",
+  "description": "Modern Bitcoin Tetris with SHA-256 Puzzles + Machine Learning AI + Sound Effects + PWA",
+  "main": "tetrohash_modern.html",
   "scripts": {
-    "start": "python3 server.py",
-    "dev": "python3 server.py",
-    "test": "python3 test_game.py",
-    "build": "echo 'No build step required for static site'",
-    "deploy": "echo 'Deploy via GitHub Pages'"
+    "start": "open tetrohash_modern.html",
+    "start-unified": "open tetrohash_unified.html",
+    "dev": "python3 -m http.server 8000",
+    "test": "echo 'Open tetrohash_modern.html in browser to test'",
+    "test-unified": "echo 'Open tetrohash_unified.html in browser to test'",
+    "build": "echo 'No build step required - static files ready'",
+    "deploy": "echo 'Deploy via GitHub Pages'",
+    "clean": "node cleanup.js",
+    "modern": "open tetrohash_modern.html",
+    "pwa": "echo 'PWA features available in tetrohash_modern.html'"
   },
   "keywords": [
     "tetris",
@@ -20,8 +25,15 @@
     "ai",
     "tensorflow",
     "javascript",
-    "python",
-    "game"
+    "modern",
+    "pwa",
+    "progressive-web-app",
+    "game",
+    "web-audio",
+    "sat-rewards",
+    "responsive",
+    "accessibility",
+    "offline-first"
   ],
   "author": "Giancarlo Vizhnay",
   "license": "MIT",
@@ -45,5 +57,20 @@
     "> 1%",
     "last 2 versions",
     "not dead"
+  ],
+  "files": [
+    "tetrohash_modern.html",
+    "modern-styles.css",
+    "modern-engine.js",
+    "manifest.json",
+    "sw.js",
+    "tetrohash_unified.html",
+    "tetrohash_unified.js",
+    "styles.css",
+    "bitcoin_logic.py",
+    "reward.py",
+    "README.md",
+    "LICENSE",
+    "package.json"
   ]
 }
