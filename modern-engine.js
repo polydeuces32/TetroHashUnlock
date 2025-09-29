@@ -142,6 +142,7 @@ class ModernTetroHashEngine {
             // Navigation
             themeToggle: document.getElementById('theme-toggle'),
             settingsToggle: document.getElementById('settings-toggle'),
+            soundToggle: document.getElementById('sound-toggle'),
             fullscreenToggle: document.getElementById('fullscreen-toggle'),
             
             // Hero Section
@@ -208,6 +209,7 @@ class ModernTetroHashEngine {
         // Navigation Events
         this.elements.themeToggle?.addEventListener('click', () => this.toggleTheme());
         this.elements.settingsToggle?.addEventListener('click', () => this.showSettings());
+        this.elements.soundToggle?.addEventListener('click', () => this.toggleSound());
         this.elements.fullscreenToggle?.addEventListener('click', () => this.toggleFullscreen());
         
         // Hero Section Events
@@ -359,6 +361,30 @@ class ModernTetroHashEngine {
         this.showToast(`Switched to ${this.theme} theme`, 'info');
     }
     
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.settings.soundEnabled = this.soundEnabled;
+        this.updateAudioVolumes();
+        this.storeSettings();
+        
+        // Update sound toggle icon
+        const soundIcon = this.elements.soundToggle?.querySelector('.sound-icon');
+        if (soundIcon) {
+            if (this.soundEnabled) {
+                soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            } else {
+                soundIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.61.84-1.25 1.61-1.25 1.61L12 18l-1.5-1.5 6-6L12 6l-1.5 1.5L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+            }
+        }
+        
+        // Play test sound
+        if (this.soundEnabled) {
+            this.playSound(440, 0.2); // A4 note
+        }
+        
+        this.showToast(`Sound ${this.soundEnabled ? 'Enabled' : 'Disabled'}`, 'info');
+    }
+    
     updateThemeIcon() {
         const icon = this.elements.themeToggle?.querySelector('.theme-icon');
         if (icon) {
@@ -502,6 +528,58 @@ class ModernTetroHashEngine {
         } catch (error) {
             console.warn('Audio playback failed:', error);
         }
+    }
+    
+    // Enhanced Sound Effects
+    playMoveSound() {
+        this.playSound(200, 0.05, 'sine');
+    }
+    
+    playRotateSound() {
+        this.playSound(300, 0.1, 'sine');
+    }
+    
+    playDropSound() {
+        this.playSound(150, 0.08, 'sine');
+    }
+    
+    playLineClearSound() {
+        this.playSound(400, 0.2, 'sine');
+    }
+    
+    playTetrisSound() {
+        // Play a chord for Tetris
+        this.playSound(523, 0.3, 'sine'); // C5
+        setTimeout(() => this.playSound(659, 0.3, 'sine'), 50); // E5
+        setTimeout(() => this.playSound(784, 0.3, 'sine'), 100); // G5
+    }
+    
+    playLevelUpSound() {
+        this.playSound(523, 0.2, 'sine'); // C5
+        setTimeout(() => this.playSound(659, 0.2, 'sine'), 100); // E5
+        setTimeout(() => this.playSound(784, 0.2, 'sine'), 200); // G5
+        setTimeout(() => this.playSound(1047, 0.3, 'sine'), 300); // C6
+    }
+    
+    playGameOverSound() {
+        // Descending tone for game over
+        this.playSound(400, 0.3, 'sine');
+        setTimeout(() => this.playSound(300, 0.3, 'sine'), 200);
+        setTimeout(() => this.playSound(200, 0.5, 'sine'), 400);
+    }
+    
+    playSATEarnedSound(sats) {
+        // Coin drop sound based on SAT amount
+        const frequency = 800 + (sats * 2);
+        this.playSound(frequency, 0.15, 'sine');
+    }
+    
+    playPauseSound() {
+        this.playSound(440, 0.1, 'sine'); // A4
+    }
+    
+    playResumeSound() {
+        this.playSound(880, 0.1, 'sine'); // A5
     }
     
     // Game Stats System
@@ -679,7 +757,7 @@ class ModernTetroHashEngine {
     move(dx) {
         if (!this.collision(dx, 0)) {
             this.pieceX += dx;
-            this.playSound(200, 0.05);
+            this.playMoveSound();
             return true;
         }
         return false;
@@ -689,7 +767,7 @@ class ModernTetroHashEngine {
         const rotated = this.rotatePiece(this.currentPiece.shape);
         if (!this.collision(0, 0, rotated)) {
             this.currentPiece.shape = rotated;
-            this.playSound(300, 0.1);
+            this.playRotateSound();
             return true;
         }
         return false;
@@ -702,6 +780,7 @@ class ModernTetroHashEngine {
     drop() {
         if (!this.collision(0, 1)) {
             this.pieceY++;
+            this.playDropSound();
             return true;
         } else {
             this.lockPiece();
@@ -746,13 +825,28 @@ class ModernTetroHashEngine {
         if (linesCleared > 0) {
             this.lines += linesCleared;
             this.score += linesCleared * 100 * this.level;
+            const oldLevel = this.level;
             this.level = Math.floor(this.lines / 10) + 1;
             
             // Award SATs
             const satsEarned = linesCleared * 10 * this.level;
             this.addSats(satsEarned);
             
-            this.playSound(400, 0.2);
+            // Play appropriate sound
+            if (linesCleared >= 4) {
+                this.playTetrisSound(); // Tetris!
+            } else {
+                this.playLineClearSound(); // Regular line clear
+            }
+            
+            // Level up sound
+            if (this.level > oldLevel) {
+                setTimeout(() => this.playLevelUpSound(), 500);
+            }
+            
+            // SAT earned sound
+            this.playSATEarnedSound(satsEarned);
+            
             this.showToast(`+${satsEarned} SATs for ${linesCleared} lines!`, 'success');
         }
     }
@@ -968,8 +1062,10 @@ class ModernTetroHashEngine {
             if (icon) {
                 if (this.isPaused) {
                     icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+                    this.playPauseSound();
                 } else {
                     icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+                    this.playResumeSound();
                 }
             }
         }
@@ -993,6 +1089,9 @@ class ModernTetroHashEngine {
         if (this.animationFrame) {
             cancelAnimationFrame(this.animationFrame);
         }
+        
+        // Play game over sound
+        this.playGameOverSound();
         
         // Update high score
         if (this.score > this.gameStats.highScore) {
