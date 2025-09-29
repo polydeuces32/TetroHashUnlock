@@ -693,10 +693,18 @@
             
             async init() {
                 console.log('🎮 Initializing Unified TetroHashUnlock...');
-                this.setupEventListeners();
-                this.initAudio();
-                this.hideLoading();
-                console.log('✅ Unified TetroHashUnlock initialized successfully!');
+                try {
+                    this.setupEventListeners();
+                    this.initAudio();
+                    this.hideLoading();
+                    console.log('✅ Unified TetroHashUnlock initialized successfully!');
+                } catch (error) {
+                    console.error('❌ Initialization error:', error);
+                    // Force hide loading screen even if there's an error
+                    setTimeout(() => {
+                        this.hideLoading();
+                    }, 2000);
+                }
             }
             
             createEmptyGrid() {
@@ -1297,8 +1305,28 @@
         // Initialize when page loads
         window.addEventListener('load', () => {
             console.log('Page loaded, initializing Unified TetroHashUnlock...');
-            window.game = new UnifiedTetroHash();
+            try {
+                window.game = new UnifiedTetroHash();
+            } catch (error) {
+                console.error('❌ Failed to initialize game:', error);
+                // Force hide loading screen after 2 seconds
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loading-screen');
+                    if (loadingScreen) {
+                        loadingScreen.classList.add('hidden');
+                    }
+                }, 2000);
+            }
         });
+        
+        // Fallback: Hide loading screen after 5 seconds regardless
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+                console.warn('⚠️ Forcing loading screen to hide after timeout');
+                loadingScreen.classList.add('hidden');
+            }
+        }, 5000);
     </script>
 </body>
 </html>
