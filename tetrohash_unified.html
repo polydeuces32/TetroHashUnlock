@@ -860,7 +860,7 @@
             }
             
             selectMode(mode) {
-                console.log(`Selected mode: ${mode}`);
+                console.log(`🎮 Selected mode: ${mode}`);
                 this.gameMode = mode;
                 
                 // Set AI mode based on game mode
@@ -878,26 +878,35 @@
                         break;
                 }
                 
+                console.log(`🎯 Starting game with mode: ${this.gameMode}`);
                 this.startGame();
             }
             
             startGame() {
+                console.log('🚀 Starting game...');
                 this.reset();
+                console.log('✅ Game reset complete');
                 
                 if (this.gameMode === 'puzzle') {
+                    console.log('🔐 Generating puzzle...');
                     this.generatePuzzle();
                     document.getElementById('puzzle-panel').classList.remove('hidden');
                 } else {
                     document.getElementById('puzzle-panel').classList.add('hidden');
                 }
                 
+                console.log('🎲 Spawning piece...');
                 this.spawnPiece();
+                console.log('🎨 Rendering...');
                 this.render();
+                console.log('🔄 Starting game loop...');
                 this.startGameLoop();
+                console.log('👁️ Showing game area...');
                 this.showGameArea();
                 
                 // Play start sound
                 this.playSound(523, 0.2);
+                console.log('🎵 Game started successfully!');
             }
             
             reset() {
@@ -941,6 +950,7 @@
             }
             
             spawnPiece() {
+                console.log('🎲 Spawning new piece...');
                 if (!this.nextPiece) {
                     this.nextPiece = this.getRandomPiece();
                 }
@@ -950,7 +960,10 @@
                 this.pieceX = Math.floor(this.WIDTH / 2) - 1;
                 this.pieceY = 0;
                 
+                console.log('📍 Piece spawned at:', this.pieceX, this.pieceY, 'Piece:', this.currentPiece?.name);
+                
                 if (this.collision(this.pieceX, this.pieceY)) {
+                    console.log('💥 Game over - collision on spawn');
                     this.gameOver = true;
                 }
             }
@@ -1262,8 +1275,10 @@
             }
             
             startGameLoop() {
+                console.log('🔄 Starting game loop...');
                 this.isRunning = true;
                 this.lastDrop = performance.now();
+                console.log('✅ Game loop started, isRunning:', this.isRunning);
                 this.gameLoop();
             }
             
