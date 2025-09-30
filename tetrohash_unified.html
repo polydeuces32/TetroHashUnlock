@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TetroHashUnlock">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>TetroHashUnlock v2.0 - Unified Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -19,6 +23,11 @@
             color: #ffffff;
             min-height: 100vh;
             overflow-x: hidden;
+            /* iPhone optimizations */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .game-container {
@@ -442,6 +451,50 @@
                 width: 250px;
                 height: 500px;
             }
+            
+            /* Larger touch targets for iPhone */
+            .mode-btn, .btn {
+                min-height: 44px;
+                min-width: 44px;
+                padding: 12px 20px;
+            }
+            
+            /* iPhone safe area support */
+            .game-container {
+                padding-top: max(20px, env(safe-area-inset-top));
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+            }
+        }
+        
+        /* iPhone specific optimizations */
+        @media screen and (max-width: 414px) {
+            .game-board {
+                width: 200px;
+                height: 400px;
+            }
+            
+            .game-title {
+                font-size: 2rem;
+            }
+            
+            .mode-btn {
+                padding: 15px;
+                margin: 5px;
+            }
+        }
+        
+        /* Landscape iPhone */
+        @media screen and (max-height: 500px) and (orientation: landscape) {
+            .game-layout {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .game-board {
+                width: 200px;
+                height: 300px;
+            }
         }
     </style>
 </head>
@@ -755,6 +808,9 @@
                         e.preventDefault();
                     }
                 });
+                
+                // iPhone touch controls
+                this.setupTouchControls();
                 
                 // Puzzle check button
                 const checkBtn = document.getElementById('check-solution');
@@ -1299,6 +1355,106 @@
             
             hideLoading() {
                 document.getElementById('loading-screen').classList.add('hidden');
+            }
+            
+            setupTouchControls() {
+                // iPhone-optimized touch controls
+                let touchStartX = 0;
+                let touchStartY = 0;
+                let touchStartTime = 0;
+                let isTouchActive = false;
+                
+                // Prevent default touch behaviors that interfere with game
+                document.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 1) {
+                        touchStartX = e.touches[0].clientX;
+                        touchStartY = e.touches[0].clientY;
+                        touchStartTime = Date.now();
+                        isTouchActive = true;
+                    }
+                }, { passive: false });
+                
+                document.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (!isTouchActive || !this.isRunning || this.gameOver) return;
+                    
+                    const touchEndX = e.changedTouches[0].clientX;
+                    const touchEndY = e.changedTouches[0].clientY;
+                    const touchDuration = Date.now() - touchStartTime;
+                    
+                    const deltaX = touchEndX - touchStartX;
+                    const deltaY = touchEndY - touchStartY;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    
+                    // Quick tap (less than 200ms and small movement) = Rotate
+                    if (touchDuration < 200 && distance < 20) {
+                        this.handleInput('ArrowUp');
+                        return;
+                    }
+                    
+                    // Swipe detection
+                    if (distance > 30) {
+                        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                            // Horizontal swipe
+                            if (deltaX > 50) {
+                                this.handleInput('ArrowRight'); // Right
+                            } else if (deltaX < -50) {
+                                this.handleInput('ArrowLeft'); // Left
+                            }
+                        } else {
+                            // Vertical swipe
+                            if (deltaY > 50) {
+                                this.handleInput('ArrowDown'); // Down
+                            } else if (deltaY < -50) {
+                                this.handleInput('ArrowUp'); // Up (rotate)
+                            }
+                        }
+                    }
+                    
+                    isTouchActive = false;
+                }, { passive: false });
+                
+                // Add visual touch feedback
+                this.addTouchFeedback();
+            }
+            
+            addTouchFeedback() {
+                // Create touch feedback element
+                const feedback = document.createElement('div');
+                feedback.id = 'touch-feedback';
+                feedback.style.cssText = `
+                    position: fixed;
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    background: rgba(255, 215, 0, 0.3);
+                    border: 2px solid #ffd700;
+                    pointer-events: none;
+                    z-index: 1000;
+                    transform: translate(-50%, -50%);
+                    opacity: 0;
+                    transition: opacity 0.2s ease;
+                `;
+                document.body.appendChild(feedback);
+                
+                // Show feedback on touch
+                document.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 1) {
+                        const touch = e.touches[0];
+                        feedback.style.left = touch.clientX + 'px';
+                        feedback.style.top = touch.clientY + 'px';
+                        feedback.style.opacity = '1';
+                    }
+                });
+                
+                document.addEventListener('touchend', () => {
+                    feedback.style.opacity = '0';
+                });
             }
         }
         
