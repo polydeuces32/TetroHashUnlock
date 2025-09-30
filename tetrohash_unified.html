@@ -1364,6 +1364,8 @@
                 let touchStartTime = 0;
                 let isTouchActive = false;
                 
+                console.log('📱 Setting up iPhone touch controls...');
+                
                 // Prevent default touch behaviors that interfere with game
                 document.addEventListener('touchstart', (e) => {
                     e.preventDefault();
@@ -1372,6 +1374,7 @@
                         touchStartY = e.touches[0].clientY;
                         touchStartTime = Date.now();
                         isTouchActive = true;
+                        console.log('👆 Touch start:', touchStartX, touchStartY);
                     }
                 }, { passive: false });
                 
@@ -1381,7 +1384,7 @@
                 
                 document.addEventListener('touchend', (e) => {
                     e.preventDefault();
-                    if (!isTouchActive || !this.isRunning || this.gameOver) return;
+                    if (!isTouchActive) return;
                     
                     const touchEndX = e.changedTouches[0].clientX;
                     const touchEndY = e.changedTouches[0].clientY;
@@ -1391,27 +1394,38 @@
                     const deltaY = touchEndY - touchStartY;
                     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                     
-                    // Quick tap (less than 200ms and small movement) = Rotate
+                    // Process touch controls
+                    console.log('👆 Touch end:', deltaX, deltaY, 'distance:', distance, 'duration:', touchDuration);
+                    
                     if (touchDuration < 200 && distance < 20) {
-                        this.handleInput('ArrowUp');
+                        // Quick tap - check if it's on a mode button first
+                        const element = document.elementFromPoint(touchEndX, touchEndY);
+                        console.log('🎯 Element at touch point:', element);
+                        if (element && element.classList.contains('mode-btn')) {
+                            console.log('🎮 Clicking mode button');
+                            element.click();
+                        } else if (this.isRunning && !this.gameOver) {
+                            console.log('🔄 Rotating piece (tap)');
+                            this.rotate();
+                        }
                         return;
                     }
                     
-                    // Swipe detection
-                    if (distance > 30) {
+                    // Swipe detection - only for game controls
+                    if (this.isRunning && !this.gameOver && distance > 30) {
                         if (Math.abs(deltaX) > Math.abs(deltaY)) {
                             // Horizontal swipe
                             if (deltaX > 50) {
-                                this.handleInput('ArrowRight'); // Right
+                                this.move(1); // Right
                             } else if (deltaX < -50) {
-                                this.handleInput('ArrowLeft'); // Left
+                                this.move(-1); // Left
                             }
                         } else {
                             // Vertical swipe
                             if (deltaY > 50) {
-                                this.handleInput('ArrowDown'); // Down
+                                this.drop(); // Down
                             } else if (deltaY < -50) {
-                                this.handleInput('ArrowUp'); // Up (rotate)
+                                this.rotate(); // Up (rotate)
                             }
                         }
                     }
