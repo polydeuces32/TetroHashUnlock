@@ -1305,7 +1305,12 @@
             }
             
             render() {
+                console.log('🎨 Rendering game...');
                 const board = document.getElementById('game-board');
+                if (!board) {
+                    console.error('❌ Game board element not found!');
+                    return;
+                }
                 board.innerHTML = '';
                 
                 // Create render grid
@@ -1358,8 +1363,23 @@
             }
             
             showGameArea() {
-                document.getElementById('mode-selection').classList.add('hidden');
-                document.getElementById('game-area').classList.remove('hidden');
+                console.log('👁️ Showing game area...');
+                const modeSelection = document.getElementById('mode-selection');
+                const gameArea = document.getElementById('game-area');
+                
+                if (modeSelection) {
+                    modeSelection.classList.add('hidden');
+                    console.log('✅ Mode selection hidden');
+                } else {
+                    console.error('❌ Mode selection element not found');
+                }
+                
+                if (gameArea) {
+                    gameArea.classList.remove('hidden');
+                    console.log('✅ Game area shown');
+                } else {
+                    console.error('❌ Game area element not found');
+                }
             }
             
             showModeSelection() {
