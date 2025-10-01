@@ -30,4 +30,4 @@ ENV FLASK_APP=server.py
 ENV FLASK_ENV=production
 
 # Start command
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "server:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-5000} --workers 2 server:app"]

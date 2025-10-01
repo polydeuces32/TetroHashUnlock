@@ -53,9 +53,7 @@
     "node": ">=14.0.0",
     "python": ">=3.8.0"
   },
-  "dependencies": {
-    "tensorflow": "^4.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "browserslist": [
     "> 1%",
