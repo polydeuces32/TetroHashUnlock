@@ -431,3 +431,6 @@ if __name__ == '__main__':
     debug = not (os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PORT'))
     
     app.run(debug=debug, host=host, port=port)
+else:
+    # For gunicorn
+    print("🎮 TetroHashUnlock API Server ready for gunicorn...")
