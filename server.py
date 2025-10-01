@@ -427,8 +427,8 @@ if __name__ == '__main__':
     print(f"🎯 Game URL: http://localhost:{port}/")
     
     # Use 0.0.0.0 for deployment, localhost for development
-    host = '0.0.0.0' if os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PORT') else '127.0.0.1'
-    debug = not (os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PORT'))
+    host = '0.0.0.0' if os.environ.get('PORT') else '127.0.0.1'
+    debug = not os.environ.get('PORT')
     
     app.run(debug=debug, host=host, port=port)
 else:
