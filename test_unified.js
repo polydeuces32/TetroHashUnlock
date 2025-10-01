@@ -49,8 +49,7 @@ try {
         'id="game-board"',
         'id="mode-selection"',
         'id="game-area"',
-        'class="control-panel ai-panel"',
-        'class="control-panel sound-panel"',
+        'class="control-panel"',
         'UnifiedTetroHash'
     ];
     
@@ -111,8 +110,8 @@ try {
         console.log('❌ Main entry point incorrect');
     }
     
-    if (packageContent.version === '2.1.0') {
-        console.log('✅ Version updated to 2.1.0');
+    if (packageContent.version === '3.0.0') {
+        console.log('✅ Version updated to 3.0.0');
         passedTests++;
     } else {
         console.log('❌ Version not updated');

@@ -26,6 +26,7 @@
             /* iPhone optimizations */
             -webkit-touch-callout: none;
             -webkit-user-select: none;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
@@ -75,46 +76,21 @@
             font-weight: 400;
         }
 
-        /* Control Panels */
+        /* Simplified Control Panel */
         .control-panels {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
 
         .control-panel {
             background: rgba(0, 0, 0, 0.9);
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #ffd700;
-            min-width: 250px;
-        }
-
-        .ai-panel {
-            border-color: #00ff00;
-        }
-
-        .sound-panel {
-            border-color: #ff6b35;
-        }
-
-        .control-panel h3 {
-            color: #ffd700;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            text-align: center;
-        }
-
-        .ai-panel h3 {
-            color: #00ff00;
-        }
-
-        .sound-panel h3 {
-            color: #ff6b35;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ffd700;
+            display: flex;
+            gap: 10px;
         }
 
         .control-panel button {
@@ -122,20 +98,11 @@
             color: #000;
             border: none;
             padding: 8px 12px;
-            margin: 3px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             font-size: 0.8rem;
-            width: 100%;
-        }
-
-        .ai-panel button {
-            background: #00ff00;
-        }
-
-        .sound-panel button {
-            background: #ff6b35;
+            white-space: nowrap;
         }
 
         .control-panel button:hover {
@@ -145,11 +112,6 @@
         .control-panel button.active {
             background: #28a745;
             color: white;
-        }
-
-        .control-panel button:disabled {
-            background: #666;
-            cursor: not-allowed;
         }
 
         /* Mode Selection */
@@ -499,25 +461,11 @@
     </style>
 </head>
 <body>
-    <!-- Control Panels -->
+    <!-- Simplified Control Panel -->
     <div class="control-panels">
-        <!-- AI Controls -->
-        <div class="control-panel ai-panel">
-            <h3>🤖 AI System</h3>
-            <button id="toggle-ai">AI: OFF</button>
-            <button id="train-ai">Train AI</button>
-            <button id="reset-ai">Reset Learning</button>
-            <button id="save-ai">Save Model</button>
-            <button id="load-ai">Load Model</button>
-        </div>
-
-        <!-- Sound Controls -->
-        <div class="control-panel sound-panel">
-            <h3>🔊 Sound</h3>
-            <button id="toggle-sound">Sound: ON</button>
-            <button id="test-sound">Test Sound</button>
-            <button id="test-coin">Test Coin</button>
-            <button id="background-music">Music: OFF</button>
+        <div class="control-panel">
+            <button id="toggle-sound">🔊 Sound: ON</button>
+            <button id="toggle-ai">🤖 AI: OFF</button>
         </div>
     </div>
 
@@ -591,24 +539,9 @@
                     <!-- AI Panel -->
                     <div class="ai-panel">
                         <h3>🤖 AI Assistant</h3>
-                        <div id="ai-prediction" class="ai-prediction">
-                            <h4>Next Move Prediction:</h4>
-                            <div class="prediction-item">
-                                <span class="prediction-move">Left:</span>
-                                <span class="prediction-confidence" id="pred-left">0%</span>
-                            </div>
-                            <div class="prediction-item">
-                                <span class="prediction-move">Right:</span>
-                                <span class="prediction-confidence" id="pred-right">0%</span>
-                            </div>
-                            <div class="prediction-item">
-                                <span class="prediction-move">Rotate:</span>
-                                <span class="prediction-confidence" id="pred-rotate">0%</span>
-                            </div>
-                            <div class="prediction-item">
-                                <span class="prediction-move">Drop:</span>
-                                <span class="prediction-confidence" id="pred-drop">0%</span>
-                            </div>
+                        <div class="ai-status">
+                            <p>AI is learning from your moves!</p>
+                            <p>Enable AI mode for move suggestions.</p>
                         </div>
                     </div>
 
@@ -820,42 +753,13 @@
                     });
                 }
                 
-                // AI controls
+                // Simplified controls
                 document.getElementById('toggle-ai').addEventListener('click', () => {
                     this.toggleAI();
                 });
                 
-                document.getElementById('train-ai').addEventListener('click', () => {
-                    this.trainAI();
-                });
-                
-                document.getElementById('reset-ai').addEventListener('click', () => {
-                    this.resetAI();
-                });
-                
-                document.getElementById('save-ai').addEventListener('click', () => {
-                    this.saveAI();
-                });
-                
-                document.getElementById('load-ai').addEventListener('click', () => {
-                    this.loadAI();
-                });
-                
-                // Sound controls
                 document.getElementById('toggle-sound').addEventListener('click', () => {
                     this.toggleSound();
-                });
-                
-                document.getElementById('test-sound').addEventListener('click', () => {
-                    this.playSound(440, 0.2);
-                });
-                
-                document.getElementById('test-coin').addEventListener('click', () => {
-                    this.playCoinSound();
-                });
-                
-                document.getElementById('background-music').addEventListener('click', () => {
-                    this.toggleMusic();
                 });
             }
             
@@ -1231,47 +1135,22 @@
                 }
             }
             
-            // AI Control Methods
+            // Simplified AI Control
             toggleAI() {
                 this.aiEnabled = !this.aiEnabled;
                 const btn = document.getElementById('toggle-ai');
-                btn.textContent = `AI: ${this.aiEnabled ? 'ON' : 'OFF'}`;
+                btn.textContent = `🤖 AI: ${this.aiEnabled ? 'ON' : 'OFF'}`;
                 btn.className = this.aiEnabled ? 'active' : '';
+                this.playSound(400, 0.2);
             }
             
-            trainAI() {
-                console.log('🤖 AI Training initiated');
-                this.playSound(400, 0.3);
-            }
-            
-            resetAI() {
-                console.log('🤖 AI Learning reset');
-                this.playSound(200, 0.2);
-            }
-            
-            saveAI() {
-                console.log('🤖 AI Model saved');
-                this.playSound(600, 0.2);
-            }
-            
-            loadAI() {
-                console.log('🤖 AI Model loaded');
-                this.playSound(800, 0.2);
-            }
-            
-            // Sound Control Methods
+            // Simplified Sound Control
             toggleSound() {
                 this.soundEnabled = !this.soundEnabled;
                 const btn = document.getElementById('toggle-sound');
-                btn.textContent = `Sound: ${this.soundEnabled ? 'ON' : 'OFF'}`;
+                btn.textContent = `🔊 Sound: ${this.soundEnabled ? 'ON' : 'OFF'}`;
                 btn.className = this.soundEnabled ? 'active' : '';
-            }
-            
-            toggleMusic() {
-                this.musicEnabled = !this.musicEnabled;
-                const btn = document.getElementById('background-music');
-                btn.textContent = `Music: ${this.musicEnabled ? 'ON' : 'OFF'}`;
-                btn.className = this.musicEnabled ? 'active' : '';
+                this.playSound(440, 0.2);
             }
             
             startGameLoop() {
