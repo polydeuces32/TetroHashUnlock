@@ -439,5 +439,9 @@ else:
     # For gunicorn
     print("🎮 TetroHashUnlock API Server ready for gunicorn...")
     print(f"🔍 PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
-    init_db()
-    print("✅ Database initialized for gunicorn")
+    try:
+        init_db()
+        print("✅ Database initialized for gunicorn")
+    except Exception as e:
+        print(f"❌ Database initialization failed: {e}")
+        print("🚀 Continuing without database...")
