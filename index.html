@@ -30,6 +30,9 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
+            /* Prevent scrolling on mobile */
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none;
         }
 
         .game-container {

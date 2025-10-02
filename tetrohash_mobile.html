@@ -9,6 +9,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <title>TetroHashUnlock v3.0 - Mobile Optimized</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="mobile_scroll_fix.js"></script>
     <style>
         /* Mobile-First TetroHashUnlock Styles */
         * {
@@ -22,7 +23,10 @@
             background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
             color: #ffffff;
             min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
             /* Mobile optimizations */
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -32,14 +36,19 @@
             /* Prevent zoom on double tap */
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
+            /* Prevent scrolling */
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: none;
         }
 
         .mobile-container {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            height: 100vh;
             padding: 10px;
             gap: 10px;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
         .mobile-header {
@@ -72,6 +81,8 @@
             align-items: center;
             gap: 15px;
             flex: 1;
+            overflow: hidden;
+            min-height: 0;
         }
 
         .game-board-mobile {
@@ -461,8 +472,22 @@
                 let touchStartY = 0;
                 let touchStartTime = 0;
                 
+                // Prevent all scrolling on the page
+                document.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+                
+                document.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                }, { passive: false });
+                
                 this.canvas.addEventListener('touchstart', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     if (e.touches.length === 1) {
                         touchStartX = e.touches[0].clientX;
                         touchStartY = e.touches[0].clientY;
@@ -470,8 +495,14 @@
                     }
                 }, { passive: false });
                 
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, { passive: false });
+                
                 this.canvas.addEventListener('touchend', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     if (e.touches.length === 0) {
                         const touchEndX = e.changedTouches[0].clientX;
                         const touchEndY = e.changedTouches[0].clientY;
