@@ -438,5 +438,6 @@ if __name__ == '__main__':
 else:
     # For gunicorn
     print("🎮 TetroHashUnlock API Server ready for gunicorn...")
+    print(f"🔍 PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
     init_db()
     print("✅ Database initialized for gunicorn")

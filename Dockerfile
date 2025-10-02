@@ -30,4 +30,4 @@ ENV FLASK_APP=server.py
 ENV FLASK_ENV=production
 
 # Start command
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 server:app
+CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 server:app
