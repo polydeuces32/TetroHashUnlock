@@ -1,33 +1,32 @@
-# Use Python 3.10 slim image
 FROM python:3.10-slim
 
-# Set working directory
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y gcc curl && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Copy requirements and install
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application
 COPY . .
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
-EXPOSE 5000
+# Expose port (Railway will override this)
+EXPOSE 8080
 
-# Set environment variables
+# Environment variables
 ENV FLASK_APP=server.py
 ENV FLASK_ENV=production
 
+# Health check disabled for now
+
+# Make startup script executable
+RUN chmod +x start.sh
+
 # Start command
-CMD gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 2 server:app
+CMD ["./start.sh"]
