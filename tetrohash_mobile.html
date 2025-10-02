@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TetroHashUnlock">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>TetroHashUnlock v3.0 - Mobile Optimized</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Mobile-First TetroHashUnlock Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Mobile optimizations */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            /* Prevent zoom on double tap */
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        .mobile-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .mobile-header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #ffd700;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .game-subtitle {
+            font-size: 0.9rem;
+            color: #00bfff;
+            opacity: 0.8;
+        }
+
+        .mobile-game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .game-board-mobile {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #gameCanvas {
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #000;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .mobile-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .control-btn {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffd700;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .control-btn:hover, .control-btn:active {
+            background: rgba(255, 215, 0, 0.4);
+            transform: scale(0.95);
+        }
+
+        .control-btn.active {
+            background: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .mobile-info {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .info-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        .level-display, .lines-display, .sats-display {
+            font-size: 1rem;
+            text-align: center;
+            margin: 5px 0;
+        }
+
+        .level-display { color: #00ff00; }
+        .lines-display { color: #00bfff; }
+        .sats-display { color: #ff8c00; }
+
+        .mobile-modes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .mode-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 5px;
+            padding: 12px 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ffd700;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .mode-btn:hover, .mode-btn:active {
+            background: rgba(255, 215, 0, 0.2);
+            transform: scale(0.95);
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .next-piece {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .next-piece canvas {
+            border: 1px solid #ffd700;
+            border-radius: 3px;
+            background: #000;
+        }
+
+        .mobile-instructions {
+            font-size: 0.8rem;
+            line-height: 1.3;
+            color: #ccc;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .mobile-instructions h4 {
+            color: #ffd700;
+            margin: 8px 0 4px 0;
+            font-size: 0.9rem;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 215, 0, 0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        /* Landscape orientation */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .mobile-container {
+                flex-direction: row;
+                padding: 5px;
+            }
+            
+            .mobile-game-area {
+                flex-direction: row;
+                flex: 1;
+            }
+            
+            .game-board-mobile {
+                flex: 1;
+                max-width: 300px;
+            }
+            
+            .mobile-info {
+                max-width: 200px;
+                min-width: 180px;
+            }
+        }
+
+        /* Very small screens */
+        @media screen and (max-width: 320px) {
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .control-btn {
+                padding: 12px 8px;
+                font-size: 0.8rem;
+                min-height: 45px;
+            }
+            
+            .mode-btn {
+                padding: 10px 6px;
+                font-size: 0.8rem;
+                min-height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🎮 Loading TetroHashUnlock...</div>
+    </div>
+
+    <div class="mobile-container">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="game-title">🎮 TetroHashUnlock</div>
+            <div class="game-subtitle">Mobile Edition v3.0</div>
+        </div>
+
+        <!-- Mobile Game Area -->
+        <div class="mobile-game-area">
+            <!-- Game Board -->
+            <div class="game-board-mobile">
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
+                
+                <!-- Mobile Controls -->
+                <div class="mobile-controls">
+                    <div class="control-btn" id="left-btn">← Left</div>
+                    <div class="control-btn" id="rotate-btn">↻ Rotate</div>
+                    <div class="control-btn" id="right-btn">→ Right</div>
+                    <div class="control-btn" id="down-btn">↓ Down</div>
+                    <div class="control-btn" id="drop-btn">⬇ Drop</div>
+                    <div class="control-btn" id="pause-btn">⏸ Pause</div>
+                </div>
+            </div>
+
+            <!-- Mobile Info Panel -->
+            <div class="mobile-info">
+                <!-- Score Section -->
+                <div class="info-section">
+                    <div class="info-title">🎯 Score</div>
+                    <div class="score-display" id="score">0</div>
+                    <div class="level-display">Level: <span id="level">1</span></div>
+                    <div class="lines-display">Lines: <span id="lines">0</span></div>
+                    <div class="sats-display">Sats: <span id="sats">0</span></div>
+                </div>
+
+                <!-- Game Modes -->
+                <div class="mobile-modes">
+                    <div class="mode-btn active" data-mode="normal">Normal</div>
+                    <div class="mode-btn" data-mode="puzzle">Puzzle</div>
+                    <div class="mode-btn" data-mode="ai-battle">AI Battle</div>
+                    <div class="mode-btn" data-mode="learning">Learning</div>
+                </div>
+
+                <!-- Next Piece -->
+                <div class="next-piece">
+                    <div class="info-title">Next</div>
+                    <canvas id="nextCanvas" width="60" height="60"></canvas>
+                </div>
+
+                <!-- Instructions -->
+                <div class="mobile-instructions">
+                    <h4>📱 Mobile Controls:</h4>
+                    <div>Tap buttons to control pieces</div>
+                    <div>Swipe on game area for movement</div>
+                    <div>Long press for drop</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile-optimized TetroHashUnlock Game
+        class MobileTetroHashUnlock {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.nextCanvas = document.getElementById('nextCanvas');
+                this.nextCtx = this.nextCanvas.getContext('2d');
+                
+                this.BOARD_WIDTH = 10;
+                this.BOARD_HEIGHT = 20;
+                this.CELL_SIZE = 30;
+                
+                this.board = [];
+                this.currentPiece = null;
+                this.nextPiece = null;
+                this.score = 0;
+                this.level = 1;
+                this.lines = 0;
+                this.sats = 0;
+                this.gameMode = 'normal';
+                this.isPaused = false;
+                this.isGameOver = false;
+                
+                this.pieces = [
+                    { shape: [[1,1,1,1]], color: '#00bfff' }, // I
+                    { shape: [[1,1],[1,1]], color: '#ffd700' }, // O
+                    { shape: [[1,1,1],[0,1,0]], color: '#800080' }, // T
+                    { shape: [[1,1,1],[1,0,0]], color: '#ff8c00' }, // L
+                    { shape: [[1,1,1],[0,0,1]], color: '#0000ff' }, // J
+                    { shape: [[1,1,0],[0,1,1]], color: '#00ff00' }, // S
+                    { shape: [[0,1,1],[1,1,0]], color: '#ff0000' }  // Z
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.initBoard();
+                this.setupEventListeners();
+                this.setupTouchControls();
+                this.spawnPiece();
+                this.gameLoop();
+                console.log('🎮 Mobile TetroHashUnlock initialized');
+            }
+            
+            initBoard() {
+                this.board = Array(this.BOARD_HEIGHT).fill().map(() => Array(this.BOARD_WIDTH).fill(0));
+            }
+            
+            setupEventListeners() {
+                // Control buttons
+                document.getElementById('left-btn').addEventListener('click', () => this.movePiece(-1, 0));
+                document.getElementById('right-btn').addEventListener('click', () => this.movePiece(1, 0));
+                document.getElementById('down-btn').addEventListener('click', () => this.movePiece(0, 1));
+                document.getElementById('rotate-btn').addEventListener('click', () => this.rotatePiece());
+                document.getElementById('drop-btn').addEventListener('click', () => this.dropPiece());
+                document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
+                
+                // Mode buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.gameMode = btn.dataset.mode;
+                        console.log('🎮 Game mode changed to:', this.gameMode);
+                    });
+                });
+            }
+            
+            setupTouchControls() {
+                let touchStartX = 0;
+                let touchStartY = 0;
+                let touchStartTime = 0;
+                
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 1) {
+                        touchStartX = e.touches[0].clientX;
+                        touchStartY = e.touches[0].clientY;
+                        touchStartTime = Date.now();
+                    }
+                }, { passive: false });
+                
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 0) {
+                        const touchEndX = e.changedTouches[0].clientX;
+                        const touchEndY = e.changedTouches[0].clientY;
+                        const touchDuration = Date.now() - touchStartTime;
+                        
+                        const deltaX = touchEndX - touchStartX;
+                        const deltaY = touchEndY - touchStartY;
+                        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                        
+                        if (touchDuration < 200 && distance < 20) {
+                            // Quick tap - rotate
+                            this.rotatePiece();
+                        } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                            // Horizontal swipe
+                            if (deltaX > 30) {
+                                this.movePiece(1, 0); // Right
+                            } else if (deltaX < -30) {
+                                this.movePiece(-1, 0); // Left
+                            }
+                        } else if (deltaY > 30) {
+                            // Down swipe - drop
+                            this.dropPiece();
+                        } else if (deltaY < -30) {
+                            // Up swipe - hard drop
+                            this.dropPiece();
+                        }
+                    }
+                }, { passive: false });
+            }
+            
+            spawnPiece() {
+                if (!this.nextPiece) {
+                    this.nextPiece = this.getRandomPiece();
+                }
+                this.currentPiece = this.nextPiece;
+                this.nextPiece = this.getRandomPiece();
+                this.drawNextPiece();
+            }
+            
+            getRandomPiece() {
+                const piece = this.pieces[Math.floor(Math.random() * this.pieces.length)];
+                return {
+                    shape: piece.shape,
+                    color: piece.color,
+                    x: Math.floor(this.BOARD_WIDTH / 2) - Math.floor(piece.shape[0].length / 2),
+                    y: 0
+                };
+            }
+            
+            movePiece(dx, dy) {
+                if (this.isPaused || this.isGameOver) return;
+                
+                const newX = this.currentPiece.x + dx;
+                const newY = this.currentPiece.y + dy;
+                
+                if (this.isValidPosition(this.currentPiece.shape, newX, newY)) {
+                    this.currentPiece.x = newX;
+                    this.currentPiece.y = newY;
+                } else if (dy > 0) {
+                    // Piece can't move down - place it
+                    this.placePiece();
+                }
+            }
+            
+            rotatePiece() {
+                if (this.isPaused || this.isGameOver) return;
+                
+                const rotated = this.rotateMatrix(this.currentPiece.shape);
+                if (this.isValidPosition(rotated, this.currentPiece.x, this.currentPiece.y)) {
+                    this.currentPiece.shape = rotated;
+                }
+            }
+            
+            dropPiece() {
+                if (this.isPaused || this.isGameOver) return;
+                
+                while (this.isValidPosition(this.currentPiece.shape, this.currentPiece.x, this.currentPiece.y + 1)) {
+                    this.currentPiece.y++;
+                }
+                this.placePiece();
+            }
+            
+            placePiece() {
+                // Place piece on board
+                for (let y = 0; y < this.currentPiece.shape.length; y++) {
+                    for (let x = 0; x < this.currentPiece.shape[y].length; x++) {
+                        if (this.currentPiece.shape[y][x]) {
+                            const boardY = this.currentPiece.y + y;
+                            const boardX = this.currentPiece.x + x;
+                            if (boardY >= 0) {
+                                this.board[boardY][boardX] = this.currentPiece.color;
+                            }
+                        }
+                    }
+                }
+                
+                // Check for completed lines
+                this.clearLines();
+                
+                // Spawn next piece
+                this.spawnPiece();
+                
+                // Check game over
+                if (!this.isValidPosition(this.currentPiece.shape, this.currentPiece.x, this.currentPiece.y)) {
+                    this.gameOver();
+                }
+            }
+            
+            clearLines() {
+                let linesCleared = 0;
+                
+                for (let y = this.BOARD_HEIGHT - 1; y >= 0; y--) {
+                    if (this.board[y].every(cell => cell !== 0)) {
+                        this.board.splice(y, 1);
+                        this.board.unshift(Array(this.BOARD_WIDTH).fill(0));
+                        linesCleared++;
+                        y++; // Check the same row again
+                    }
+                }
+                
+                if (linesCleared > 0) {
+                    this.lines += linesCleared;
+                    this.score += linesCleared * 100 * this.level;
+                    this.sats += linesCleared * 10;
+                    this.level = Math.floor(this.lines / 10) + 1;
+                    this.updateDisplay();
+                }
+            }
+            
+            isValidPosition(shape, x, y) {
+                for (let py = 0; py < shape.length; py++) {
+                    for (let px = 0; px < shape[py].length; px++) {
+                        if (shape[py][px]) {
+                            const newX = x + px;
+                            const newY = y + py;
+                            
+                            if (newX < 0 || newX >= this.BOARD_WIDTH || 
+                                newY >= this.BOARD_HEIGHT || 
+                                (newY >= 0 && this.board[newY][newX] !== 0)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            }
+            
+            rotateMatrix(matrix) {
+                const rows = matrix.length;
+                const cols = matrix[0].length;
+                const rotated = Array(cols).fill().map(() => Array(rows).fill(0));
+                
+                for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < cols; j++) {
+                        rotated[j][rows - 1 - i] = matrix[i][j];
+                    }
+                }
+                
+                return rotated;
+            }
+            
+            drawNextPiece() {
+                this.nextCtx.clearRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
+                
+                if (this.nextPiece) {
+                    const cellSize = 15;
+                    const offsetX = (this.nextCanvas.width - this.nextPiece.shape[0].length * cellSize) / 2;
+                    const offsetY = (this.nextCanvas.height - this.nextPiece.shape.length * cellSize) / 2;
+                    
+                    for (let y = 0; y < this.nextPiece.shape.length; y++) {
+                        for (let x = 0; x < this.nextPiece.shape[y].length; x++) {
+                            if (this.nextPiece.shape[y][x]) {
+                                this.nextCtx.fillStyle = this.nextPiece.color;
+                                this.nextCtx.fillRect(
+                                    offsetX + x * cellSize,
+                                    offsetY + y * cellSize,
+                                    cellSize - 1,
+                                    cellSize - 1
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            
+            draw() {
+                // Clear canvas
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw board
+                for (let y = 0; y < this.BOARD_HEIGHT; y++) {
+                    for (let x = 0; x < this.BOARD_WIDTH; x++) {
+                        if (this.board[y][x]) {
+                            this.ctx.fillStyle = this.board[y][x];
+                            this.ctx.fillRect(
+                                x * this.CELL_SIZE,
+                                y * this.CELL_SIZE,
+                                this.CELL_SIZE - 1,
+                                this.CELL_SIZE - 1
+                            );
+                        }
+                    }
+                }
+                
+                // Draw current piece
+                if (this.currentPiece) {
+                    this.ctx.fillStyle = this.currentPiece.color;
+                    for (let y = 0; y < this.currentPiece.shape.length; y++) {
+                        for (let x = 0; x < this.currentPiece.shape[y].length; x++) {
+                            if (this.currentPiece.shape[y][x]) {
+                                this.ctx.fillRect(
+                                    (this.currentPiece.x + x) * this.CELL_SIZE,
+                                    (this.currentPiece.y + y) * this.CELL_SIZE,
+                                    this.CELL_SIZE - 1,
+                                    this.CELL_SIZE - 1
+                                );
+                            }
+                        }
+                    }
+                }
+                
+                // Draw grid
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 1;
+                for (let x = 0; x <= this.BOARD_WIDTH; x++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x * this.CELL_SIZE, 0);
+                    this.ctx.lineTo(x * this.CELL_SIZE, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                for (let y = 0; y <= this.BOARD_HEIGHT; y++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y * this.CELL_SIZE);
+                    this.ctx.lineTo(this.canvas.width, y * this.CELL_SIZE);
+                    this.ctx.stroke();
+                }
+            }
+            
+            updateDisplay() {
+                document.getElementById('score').textContent = this.score;
+                document.getElementById('level').textContent = this.level;
+                document.getElementById('lines').textContent = this.lines;
+                document.getElementById('sats').textContent = this.sats;
+            }
+            
+            togglePause() {
+                this.isPaused = !this.isPaused;
+                const btn = document.getElementById('pause-btn');
+                btn.textContent = this.isPaused ? '▶ Resume' : '⏸ Pause';
+                console.log('🎮 Game', this.isPaused ? 'paused' : 'resumed');
+            }
+            
+            gameOver() {
+                this.isGameOver = true;
+                console.log('🎮 Game Over! Final Score:', this.score);
+                alert(`Game Over!\nFinal Score: ${this.score}\nLevel: ${this.level}\nLines: ${this.lines}\nSats: ${this.sats}`);
+            }
+            
+            gameLoop() {
+                if (!this.isPaused && !this.isGameOver) {
+                    this.movePiece(0, 1);
+                }
+                this.draw();
+                this.updateDisplay();
+                
+                setTimeout(() => this.gameLoop(), 1000 / this.level);
+            }
+        }
+        
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 Initializing Mobile TetroHashUnlock...');
+            
+            // Hide loading screen
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+                
+                // Initialize game
+                new MobileTetroHashUnlock();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
