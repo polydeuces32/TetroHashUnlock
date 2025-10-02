@@ -6,15 +6,7 @@ echo "🔍 Working directory: $(pwd)"
 echo "🔍 Files in directory: $(ls -la)"
 
 # Initialize database
-python3 -c "
-import sqlite3
-import os
-print('📊 Initializing database...')
-conn = sqlite3.connect('tetrohash.db')
-print('✅ Database connection successful')
-conn.close()
-print('✅ Database initialized')
-"
+python3 -c "import sqlite3; import os; print('📊 Initializing database...'); conn = sqlite3.connect('tetrohash.db'); print('✅ Database connection successful'); conn.close(); print('✅ Database initialized')"
 
 # Start the server
 echo "🚀 Starting Gunicorn server..."
