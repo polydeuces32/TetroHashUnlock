@@ -462,6 +462,9 @@
                 let touchStartX = 0;
                 let touchStartY = 0;
                 let touchStartTime = 0;
+                let isTouchActive = false;
+                
+                console.log('📱 Setting up enhanced touch controls...');
                 
                 // Only prevent scrolling on the game canvas, allow scrolling elsewhere
                 this.canvas.addEventListener('touchstart', (e) => {
@@ -471,18 +474,32 @@
                         touchStartX = e.touches[0].clientX;
                         touchStartY = e.touches[0].clientY;
                         touchStartTime = Date.now();
+                        isTouchActive = true;
+                        console.log('👆 Touch start:', touchStartX, touchStartY);
+                        
+                        // Add visual feedback
+                        this.showTouchFeedback(touchStartX, touchStartY);
                     }
                 }, { passive: false });
                 
                 this.canvas.addEventListener('touchmove', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    if (isTouchActive && e.touches.length === 1) {
+                        const currentX = e.touches[0].clientX;
+                        const currentY = e.touches[0].clientY;
+                        const deltaX = currentX - touchStartX;
+                        const deltaY = currentY - touchStartY;
+                        
+                        // Show movement feedback
+                        this.showMovementFeedback(deltaX, deltaY);
+                    }
                 }, { passive: false });
                 
                 this.canvas.addEventListener('touchend', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (e.touches.length === 0) {
+                    if (isTouchActive && e.touches.length === 0) {
                         const touchEndX = e.changedTouches[0].clientX;
                         const touchEndY = e.changedTouches[0].clientY;
                         const touchDuration = Date.now() - touchStartTime;
@@ -491,25 +508,121 @@
                         const deltaY = touchEndY - touchStartY;
                         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                         
+                        console.log('👆 Touch end:', deltaX, deltaY, 'distance:', distance, 'duration:', touchDuration);
+                        
                         if (touchDuration < 200 && distance < 20) {
                             // Quick tap - rotate
+                            console.log('🔄 Rotating piece');
                             this.rotatePiece();
+                            this.showActionFeedback('ROTATE');
                         } else if (Math.abs(deltaX) > Math.abs(deltaY)) {
                             // Horizontal swipe
                             if (deltaX > 30) {
+                                console.log('➡️ Moving right');
                                 this.movePiece(1, 0); // Right
+                                this.showActionFeedback('RIGHT');
                             } else if (deltaX < -30) {
+                                console.log('⬅️ Moving left');
                                 this.movePiece(-1, 0); // Left
+                                this.showActionFeedback('LEFT');
                             }
                         } else if (deltaY > 30) {
                             // Down swipe - drop
+                            console.log('⬇️ Dropping piece');
                             this.dropPiece();
+                            this.showActionFeedback('DROP');
                         } else if (deltaY < -30) {
                             // Up swipe - hard drop
+                            console.log('⬆️ Hard drop');
                             this.dropPiece();
+                            this.showActionFeedback('HARD DROP');
                         }
+                        
+                        isTouchActive = false;
+                        this.hideTouchFeedback();
                     }
                 }, { passive: false });
+            }
+            
+            showTouchFeedback(x, y) {
+                // Create or update touch feedback element
+                let feedback = document.getElementById('touch-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.id = 'touch-feedback';
+                    feedback.style.cssText = `
+                        position: fixed;
+                        width: 40px;
+                        height: 40px;
+                        background: rgba(255, 215, 0, 0.3);
+                        border: 2px solid #ffd700;
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 1000;
+                        transition: opacity 0.2s;
+                        opacity: 0;
+                    `;
+                    document.body.appendChild(feedback);
+                }
+                
+                feedback.style.left = (x - 20) + 'px';
+                feedback.style.top = (y - 20) + 'px';
+                feedback.style.opacity = '1';
+            }
+            
+            showMovementFeedback(deltaX, deltaY) {
+                // Show movement direction
+                const feedback = document.getElementById('touch-feedback');
+                if (feedback) {
+                    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                        feedback.style.background = deltaX > 0 ? 'rgba(0, 255, 0, 0.3)' : 'rgba(255, 0, 0, 0.3)';
+                        feedback.style.borderColor = deltaX > 0 ? '#00ff00' : '#ff0000';
+                    } else if (deltaY > 0) {
+                        feedback.style.background = 'rgba(0, 0, 255, 0.3)';
+                        feedback.style.borderColor = '#0000ff';
+                    }
+                }
+            }
+            
+            showActionFeedback(action) {
+                // Show action feedback
+                let actionFeedback = document.getElementById('action-feedback');
+                if (!actionFeedback) {
+                    actionFeedback = document.createElement('div');
+                    actionFeedback.id = 'action-feedback';
+                    actionFeedback.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(0, 0, 0, 0.8);
+                        color: #ffd700;
+                        padding: 10px 20px;
+                        border-radius: 10px;
+                        font-family: 'Orbitron', monospace;
+                        font-weight: bold;
+                        font-size: 1.2rem;
+                        pointer-events: none;
+                        z-index: 1001;
+                        opacity: 0;
+                        transition: opacity 0.3s;
+                    `;
+                    document.body.appendChild(actionFeedback);
+                }
+                
+                actionFeedback.textContent = action;
+                actionFeedback.style.opacity = '1';
+                
+                setTimeout(() => {
+                    actionFeedback.style.opacity = '0';
+                }, 500);
+            }
+            
+            hideTouchFeedback() {
+                const feedback = document.getElementById('touch-feedback');
+                if (feedback) {
+                    feedback.style.opacity = '0';
+                }
             }
             
             spawnPiece() {
