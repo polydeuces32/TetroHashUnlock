@@ -419,6 +419,10 @@ def generate_preimage(difficulty: int) -> str:
 if __name__ == '__main__':
     print("🎮 Starting TetroHashUnlock API Server...")
     
+    # Initialize database
+    init_db()
+    print("✅ Database initialized")
+    
     # Get port from environment variable (for deployment) or use 5000
     port = int(os.environ.get('PORT', 5000))
     
@@ -434,3 +438,5 @@ if __name__ == '__main__':
 else:
     # For gunicorn
     print("🎮 TetroHashUnlock API Server ready for gunicorn...")
+    init_db()
+    print("✅ Database initialized for gunicorn")
