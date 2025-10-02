@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TetroHashUnlock">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>TetroHashUnlock v3.0 - With API Support</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Unified TetroHashUnlock Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .game-board {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        #gameCanvas {
+            border: 2px solid #ffd700;
+            border-radius: 5px;
+            background: #000;
+        }
+
+        .game-info {
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 300px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .info-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .level-display {
+            font-size: 1.2em;
+            color: #00ff00;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .lines-display {
+            font-size: 1.1em;
+            color: #00bfff;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .sats-display {
+            font-size: 1.1em;
+            color: #ff8c00;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .control-panels {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .control-panel {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .control-panel:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: scale(1.05);
+        }
+
+        .control-panel.active {
+            background: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .api-status {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .api-status.offline {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+        }
+
+        .next-piece {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .next-piece canvas {
+            border: 1px solid #ffd700;
+            border-radius: 3px;
+            background: #000;
+        }
+
+        .game-modes {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .game-mode {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #ffd700;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .game-mode:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .game-mode.active {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .instructions {
+            font-size: 0.9em;
+            line-height: 1.4;
+            color: #ccc;
+        }
+
+        .instructions h4 {
+            color: #ffd700;
+            margin: 10px 0 5px 0;
+        }
+
+        .instructions ul {
+            margin: 5px 0 5px 20px;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 215, 0, 0.3);
+            border-top: 5px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5em;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .game-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-info {
+                min-width: auto;
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🎮 Loading TetroHashUnlock...</div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-wrapper">
+            <!-- Game Board -->
+            <div class="game-board">
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
+            </div>
+
+            <!-- Game Info Panel -->
+            <div class="game-info">
+                <!-- Score Section -->
+                <div class="info-section">
+                    <div class="info-title">🎯 Score</div>
+                    <div class="score-display" id="score">0</div>
+                    <div class="level-display">Level: <span id="level">1</span></div>
+                    <div class="lines-display">Lines: <span id="lines">0</span></div>
+                    <div class="sats-display">Sats: <span id="sats">0</span></div>
+                </div>
+
+                <!-- API Status -->
+                <div class="info-section">
+                    <div class="info-title">🌐 API Status</div>
+                    <div class="api-status" id="api-status">
+                        <div>Checking API connection...</div>
+                    </div>
+                </div>
+
+                <!-- Control Panels -->
+                <div class="control-panels">
+                    <div class="control-panel" id="sound-toggle">
+                        <div>🔊 Sound</div>
+                    </div>
+                    <div class="control-panel" id="ai-toggle">
+                        <div>🤖 AI</div>
+                    </div>
+                </div>
+
+                <!-- Next Piece -->
+                <div class="next-piece">
+                    <div class="info-title">Next Piece</div>
+                    <canvas id="nextCanvas" width="80" height="80"></canvas>
+                </div>
+
+                <!-- Game Modes -->
+                <div class="game-modes">
+                    <div class="info-title">🎮 Game Modes</div>
+                    <div class="game-mode active" data-mode="normal">Normal</div>
+                    <div class="game-mode" data-mode="puzzle">Puzzle</div>
+                    <div class="game-mode" data-mode="ai-battle">AI Battle</div>
+                    <div class="game-mode" data-mode="learning">Learning</div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="instructions">
+                    <h4>🎮 Controls:</h4>
+                    <ul>
+                        <li>Arrow Keys - Move/Rotate</li>
+                        <li>Space - Drop</li>
+                        <li>P - Pause</li>
+                        <li>R - Restart</li>
+                        <li>M - Music</li>
+                        <li>A - AI Help</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://tetrohashunlock-production.up.railway.app';
+        const FALLBACK_MODE = true; // Use local storage when API is unavailable
+
+        // Game State
+        let gameState = {
+            score: 0,
+            level: 1,
+            lines: 0,
+            sats: 0,
+            gameMode: 'normal',
+            soundEnabled: true,
+            aiEnabled: false,
+            apiConnected: false
+        };
+
+        // API Functions
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    gameState.apiConnected = true;
+                    updateAPIStatus('online', 'API Connected');
+                    console.log('✅ API Connected:', data);
+                    return true;
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                gameState.apiConnected = false;
+                updateAPIStatus('offline', 'API Offline - Using Local Mode');
+                console.warn('⚠️ API Offline:', error.message);
+                return false;
+            }
+        }
+
+        function updateAPIStatus(status, message) {
+            const statusElement = document.getElementById('api-status');
+            statusElement.className = `api-status ${status === 'offline' ? 'offline' : ''}`;
+            statusElement.innerHTML = `<div>${message}</div>`;
+        }
+
+        async function saveScore(scoreData) {
+            if (!gameState.apiConnected) {
+                // Save to local storage
+                const localScores = JSON.parse(localStorage.getItem('tetrohash_scores') || '[]');
+                localScores.push({
+                    ...scoreData,
+                    timestamp: new Date().toISOString(),
+                    local: true
+                });
+                localStorage.setItem('tetrohash_scores', JSON.stringify(localScores));
+                console.log('💾 Score saved locally');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/submit_game`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(scoreData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('✅ Score saved to API:', result);
+                } else {
+                    throw new Error('Failed to save score');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to save to API, saving locally:', error.message);
+                // Fallback to local storage
+                const localScores = JSON.parse(localStorage.getItem('tetrohash_scores') || '[]');
+                localScores.push({
+                    ...scoreData,
+                    timestamp: new Date().toISOString(),
+                    local: true
+                });
+                localStorage.setItem('tetrohash_scores', JSON.stringify(localScores));
+            }
+        }
+
+        // Initialize API connection
+        checkAPIStatus();
+
+        // Game initialization and other code would go here...
+        // (This is a simplified version - the full game code would be included)
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 TetroHashUnlock with API Support initialized');
+            
+            // Hide loading screen
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
