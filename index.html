@@ -160,6 +160,14 @@
           <button id="resetGame" class="button secondary full">
             Reset
           </button>
+
+          <button id="pauseGame" class="button secondary full">
+            Pause
+          </button>
+
+          <button id="learningModeToggle" class="button secondary full">
+            AI Learning: On
+          </button>
         </aside>
 
         <section class="game-card" aria-label="Bitcoin Tetris SHA-256 puzzle game board">
@@ -175,6 +183,7 @@
             <button type="button" data-control="right">Right</button>
             <button type="button" data-control="drop">Drop</button>
             <button type="button" data-control="mine">Mine</button>
+            <button type="button" data-control="pause">Pause</button>
           </div>
         </section>
 
@@ -186,6 +195,7 @@
             <li><strong>↓</strong> Drop faster</li>
             <li><strong>Space</strong> Hard drop / mine hash</li>
             <li><strong>↑ / R</strong> Rotate block</li>
+            <li><strong>P</strong> Pause / resume tutor review</li>
             <li><strong>Esc</strong> Reset run</li>
           </ul>
 
@@ -197,6 +207,16 @@
             <li id="signalSurvival">Survival: 0s</li>
             <li id="signalAdapt">AI pressure: idle</li>
           </ul>
+
+          <div class="mini-panel ai-panel">
+            <h3>AI Learning Mode</h3>
+            <strong id="aiModeState">Tutor On</strong>
+            <p id="aiTutorMessage">
+              The local tutor watches your speed, mistakes, survival, row clears,
+              and mining attempts to explain the next move.
+            </p>
+            <small id="learningPath">Beginner Mining Path</small>
+          </div>
 
           <div class="mini-panel">
             <h3>Current Mission</h3>
@@ -241,6 +261,14 @@
             <h3>Run Report</h3>
             <p id="runReport">Start a run to build your mining report.</p>
           </div>
+
+          <div class="mini-panel claim-panel">
+            <h3>Reward Claim</h3>
+            <p id="claimStatus">
+              In-game sats are tracked locally. Real Lightning withdrawal needs
+              backend validation before launch.
+            </p>
+          </div>
         </aside>
       </div>
     </section>
@@ -258,10 +286,11 @@
       <h2>6. MACHINE-LEARNING AI LAYER</h2>
 
       <p>
-        The current AI layer is a local adaptive learning engine. It tracks
+        The current AI Learning Mode is a local adaptive tutor. It tracks
         movement speed, mistakes, survival time, score growth, line clears, and
         mining attempts. The engine uses those signals to adjust pressure,
-        difficulty, and pacing.
+        explain what is happening, recommend the next learning path, and help
+        players understand each Bitcoin concept while they play.
       </p>
 
       <h2>7. WHY THIS IS NOT JUST DECORATION</h2>
@@ -270,7 +299,8 @@
         AI only matters if it has a real job. Here, the job is to make the game
         teach better. If the player improves quickly, the game increases
         pressure. If the player struggles, the game slows the curve. Later, a
-        backend model can predict the best next lesson and difficulty profile.
+        backend model can validate rewards, personalize lesson sequencing, and
+        support real Lightning withdrawals safely.
       </p>
 
       <h2>8. SOUND EFFECTS</h2>

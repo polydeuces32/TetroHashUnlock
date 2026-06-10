@@ -420,7 +420,7 @@ main,
 
 .touch-controls {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 8px;
   margin-top: 14px;
 }
@@ -539,6 +539,22 @@ main,
 }
 
 .run-report p {
+  color: #ffffff;
+}
+
+.ai-panel {
+  border-top-color: rgba(111, 247, 255, 0.36);
+}
+
+.ai-panel strong {
+  color: var(--cyan);
+}
+
+.claim-panel {
+  border-top-color: rgba(247, 255, 40, 0.34);
+}
+
+.claim-panel p {
   color: #ffffff;
 }
 
@@ -679,6 +695,10 @@ main,
 
   .cards {
     grid-template-columns: 1fr;
+  }
+
+  .touch-controls {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .section-shell {

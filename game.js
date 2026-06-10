@@ -22,6 +22,10 @@ const transactionCountEl = document.getElementById("transactionCount");
 const feeRateEl = document.getElementById("feeRate");
 const hashPreviewEl = document.getElementById("hashPreview");
 const runReportEl = document.getElementById("runReport");
+const aiModeStateEl = document.getElementById("aiModeState");
+const aiTutorMessageEl = document.getElementById("aiTutorMessage");
+const learningPathEl = document.getElementById("learningPath");
+const claimStatusEl = document.getElementById("claimStatus");
 
 const signalSpeedEl = document.getElementById("signalSpeed");
 const signalMistakesEl = document.getElementById("signalMistakes");
@@ -30,6 +34,8 @@ const signalAdaptEl = document.getElementById("signalAdapt");
 
 const startButton = document.getElementById("startGame");
 const resetButton = document.getElementById("resetGame");
+const pauseButton = document.getElementById("pauseGame");
+const learningModeButton = document.getElementById("learningModeToggle");
 
 const learning = new window.TetroHashLearningEngine();
 const sound = new window.TetroHashSoundEngine();
@@ -303,6 +309,8 @@ let rewardProfile = loadRewardProfile();
 const state = {
   running: false,
   won: false,
+  paused: false,
+  aiLearningMode: true,
   mode: "tetris",
   grid: [],
   piece: null,
@@ -467,11 +475,24 @@ function updateDifficulty() {
   state.fallInterval = Math.max(245, level.fallInterval + adaptiveTrim);
 
   const pressure = calculateMempoolPressure();
+  const tutorMessage = learning.getTutorMessage({
+    mode: state.mode,
+    levelName: level.name,
+    pressure,
+    linesSinceMine: state.linesSinceMine,
+    linesToMine: level.linesToMine,
+    targetPrefix: state.targetPrefix,
+    attempts: state.attempts,
+    paused: state.paused,
+    won: state.won,
+    aiLearningMode: state.aiLearningMode,
+  });
 
   scoreEl.textContent = state.score;
   levelEl.textContent = `${state.level}/${LEVELS.length}`;
   pressureEl.textContent = getPressureLabel(pressure);
-  modelStateEl.textContent = level.boss ? "Boss pressure" : profile.adaptation;
+  modelStateEl.textContent =
+    state.aiLearningMode ? (level.boss ? "Boss tutor" : profile.adaptation) : "Tutor off";
 
   if (levelNameEl) levelNameEl.textContent = level.name;
   if (satsBalanceEl) satsBalanceEl.textContent = `${rewardProfile.satsBalance} sats`;
@@ -493,12 +514,25 @@ function updateDifficulty() {
   if (transactionCountEl) transactionCountEl.textContent = state.transactionCount || "--";
   if (feeRateEl) feeRateEl.textContent = state.feeRate ? `${state.feeRate} sat/vB` : "--";
   if (hashPreviewEl) hashPreviewEl.textContent = shortHash(state.currentHash || state.previousHash);
+  if (aiModeStateEl) aiModeStateEl.textContent = state.aiLearningMode ? "Tutor On" : "Tutor Off";
+  if (aiTutorMessageEl) aiTutorMessageEl.textContent = tutorMessage;
+  if (learningPathEl) learningPathEl.textContent = learning.getLearningPath(state.blocksMined, state.won);
+  if (claimStatusEl) {
+    claimStatusEl.textContent =
+      state.won
+        ? `Ready locally: +${WIN_SATS_REWARD} in-game sats added. Lightning withdrawal requires backend validation.`
+        : `Win all ${LEVELS.length} levels to earn ${WIN_SATS_REWARD} in-game sats. Real Lightning claims come after anti-cheat validation.`;
+  }
+  if (pauseButton) pauseButton.textContent = state.paused ? "Resume" : "Pause";
+  if (learningModeButton) learningModeButton.textContent = state.aiLearningMode ? "AI Learning: On" : "AI Learning: Off";
 
   signalSpeedEl.textContent = `Speed: ${learning.getMovesPerMinute()} actions/min`;
   signalMistakesEl.textContent = `Mistakes: ${learning.session.mistakes}`;
   signalSurvivalEl.textContent = `Survival: ${learning.getSurvivalSeconds()}s`;
   signalAdaptEl.textContent =
-    state.mode === "mining"
+    !state.aiLearningMode
+      ? "AI tutor: hidden"
+      : state.mode === "mining"
       ? `Mining target: ${state.targetPrefix} (${level.hashBatch} hashes/press)`
       : `Daily challenge: mine ${dailyTarget} blocks`;
 
@@ -724,7 +758,29 @@ function drawVictory() {
   drawText(`score: ${state.score}`, 44, 280, 13, "#6ff7ff", "900");
   drawText(`best combo: ${state.bestCombo}`, 44, 306, 13, "#a6ff6f", "900");
   drawText(`sats earned: +${state.runSats}`, 44, 332, 13, "#f7ff28", "900");
-  drawText("Press Start Game to run it again.", 44, 382, 11, "#b8cedd", "900");
+  drawText("Local sats saved. Lightning claim later.", 44, 382, 11, "#b8cedd", "900");
+}
+
+function drawPausedOverlay() {
+  ctx.fillStyle = "rgba(2, 11, 20, 0.76)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "rgba(255,255,255,0.08)";
+  ctx.fillRect(28, 176, 264, 154);
+  ctx.strokeStyle = "#f7ff28";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 176, 264, 154);
+
+  drawText("PAUSED", 94, 224, 28, "#f7ff28", "1000");
+  drawWrappedText(
+    "Read the AI tutor and mission card, then press P or Resume to continue.",
+    48,
+    266,
+    224,
+    20,
+    12,
+    "#ffffff"
+  );
 }
 
 function draw() {
@@ -734,6 +790,10 @@ function draw() {
     drawMiningPuzzle();
   } else {
     drawTetris();
+  }
+
+  if (state.paused && !state.won) {
+    drawPausedOverlay();
   }
 }
 
@@ -826,7 +886,7 @@ function lockPiece() {
 }
 
 function movePiece(dx) {
-  if (!state.running || state.mode !== "tetris") return;
+  if (!state.running || state.paused || state.mode !== "tetris") return;
 
   if (!collides(state.piece, dx, 0)) {
     state.piece.x += dx;
@@ -838,7 +898,7 @@ function movePiece(dx) {
 }
 
 function softDrop() {
-  if (!state.running || state.mode !== "tetris") return;
+  if (!state.running || state.paused || state.mode !== "tetris") return;
 
   if (!collides(state.piece, 0, 1)) {
     state.piece.y += 1;
@@ -851,7 +911,7 @@ function softDrop() {
 }
 
 function hardDrop() {
-  if (!state.running || state.mode !== "tetris") return;
+  if (!state.running || state.paused || state.mode !== "tetris") return;
 
   let distance = 0;
 
@@ -871,7 +931,7 @@ function rotateShape(shape) {
 }
 
 function rotatePiece() {
-  if (!state.running || state.mode !== "tetris") return;
+  if (!state.running || state.paused || state.mode !== "tetris") return;
 
   const rotated = rotateShape(state.piece.shape);
 
@@ -921,6 +981,7 @@ function addMempoolSurge(rows = 0) {
 function completeVictory() {
   state.running = false;
   state.won = true;
+  state.paused = false;
   state.runSats += WIN_SATS_REWARD;
 
   cancelAnimationFrame(state.animationId);
@@ -938,11 +999,11 @@ function completeVictory() {
 
   unlockAchievement("champion");
   saveRewardProfile();
-  learning.completeSession(state.score);
+  const summary = learning.completeSession(state.score);
   sound.validBlock();
 
   state.report =
-    `Victory: ${LEVELS.length} blocks mined, ${state.score} points, best combo ${state.bestCombo}, +${WIN_SATS_REWARD} sats.`;
+    `Victory: ${LEVELS.length} blocks mined, ${state.score} points, best combo ${state.bestCombo}, +${WIN_SATS_REWARD} sats. ${learning.getRunLesson(summary, state.blocksMined, true)}`;
   gameMessageEl.textContent =
     `Game won. You earned ${WIN_SATS_REWARD} in-game sats for completing the full chain.`;
 
@@ -1002,7 +1063,7 @@ function handleValidBlock(hash) {
 }
 
 async function mineBatch() {
-  if (!state.running || state.mode !== "mining" || state.miningBusy) return;
+  if (!state.running || state.paused || state.mode !== "mining" || state.miningBusy) return;
 
   const level = getCurrentLevel();
   state.miningBusy = true;
@@ -1052,7 +1113,7 @@ function update(time = 0) {
   const delta = time - state.lastTime;
   state.lastTime = time;
 
-  if (state.mode === "tetris") {
+  if (!state.paused && state.mode === "tetris") {
     state.dropCounter += delta;
 
     if (state.dropCounter > state.fallInterval) {
@@ -1067,6 +1128,29 @@ function update(time = 0) {
   state.animationId = requestAnimationFrame(update);
 }
 
+function togglePause() {
+  if (!state.running || state.won) return;
+
+  state.paused = !state.paused;
+  state.dropCounter = 0;
+  gameMessageEl.textContent = state.paused
+    ? "Game paused. AI tutor and mission panels are ready for review."
+    : "Run resumed. Keep building blocks and mining hashes.";
+
+  updateDifficulty();
+  draw();
+}
+
+function toggleLearningMode() {
+  state.aiLearningMode = !state.aiLearningMode;
+  gameMessageEl.textContent = state.aiLearningMode
+    ? "AI Learning Mode enabled. Tutor hints and adaptive explanations are visible."
+    : "AI Learning Mode hidden. The campaign still adapts in the background.";
+
+  updateDifficulty();
+  draw();
+}
+
 function startGame() {
   sound.boot();
 
@@ -1074,6 +1158,7 @@ function startGame() {
 
   state.running = true;
   state.won = false;
+  state.paused = false;
   state.mode = "tetris";
   state.grid = createGrid();
   state.piece = null;
@@ -1116,6 +1201,7 @@ function resetGame() {
 
   state.running = false;
   state.won = false;
+  state.paused = false;
   state.mode = "tetris";
   state.grid = createGrid();
   state.piece = null;
@@ -1141,7 +1227,7 @@ function resetGame() {
   state.levelIntroUntil = 0;
   state.report = `Best score ${rewardProfile.bestScore}. Best level ${rewardProfile.bestLevel}/${LEVELS.length}. Wins ${rewardProfile.wins}.`;
 
-  learning.resetProfile();
+  learning.startSession();
 
   updateDifficulty();
 
@@ -1154,6 +1240,7 @@ function resetGame() {
 function endGame() {
   state.running = false;
   state.won = false;
+  state.paused = false;
   cancelAnimationFrame(state.animationId);
 
   const summary = learning.completeSession(state.score);
@@ -1163,7 +1250,7 @@ function endGame() {
   saveRewardProfile();
 
   state.report =
-    `Run ended: level ${state.level}, ${state.blocksMined} blocks mined, score ${state.score}, best ${summary.bestScore}.`;
+    `Run ended: level ${state.level}, ${state.blocksMined} blocks mined, score ${state.score}, best ${summary.bestScore}. ${learning.getRunLesson(summary, state.blocksMined, false)}`;
 
   sound.fail();
   updateDifficulty();
@@ -1200,6 +1287,11 @@ document.addEventListener("keydown", (event) => {
     rotatePiece();
   }
 
+  if (event.key.toLowerCase() === "p") {
+    event.preventDefault();
+    togglePause();
+  }
+
   if (event.code === "Space") {
     event.preventDefault();
 
@@ -1224,6 +1316,7 @@ document.querySelectorAll("[data-control]").forEach((button) => {
     if (control === "right") movePiece(1);
     if (control === "rotate") rotatePiece();
     if (control === "drop") hardDrop();
+    if (control === "pause") togglePause();
     if (control === "mine") {
       if (state.mode === "mining") {
         mineBatch();
@@ -1236,5 +1329,7 @@ document.querySelectorAll("[data-control]").forEach((button) => {
 
 startButton.addEventListener("click", startGame);
 resetButton.addEventListener("click", resetGame);
+pauseButton.addEventListener("click", togglePause);
+learningModeButton.addEventListener("click", toggleLearningMode);
 
 resetGame();
