@@ -92,7 +92,7 @@ init_db()
 @app.route('/')
 def index():
     """Serve the main game page"""
-    return send_from_directory('.', 'tetrohash_unified.html')
+    return send_from_directory(os.path.join(os.path.dirname(__file__), '..'), 'index.html')
 
 @app.route('/api/health')
 def health_check():
@@ -208,14 +208,18 @@ def submit_game():
         
         # Update leaderboard
         update_leaderboard(data['game_mode'], data['player_id'], data['score'])
-        
+
+        cursor.execute('SELECT total_sats FROM players WHERE id = ?', (data['player_id'],))
+        row = cursor.fetchone()
+        new_total_sats = row[0] if row else data['sats_earned']
+
         conn.commit()
         conn.close()
-        
+
         return jsonify({
             'message': 'Game submitted successfully',
             'sats_earned': data['sats_earned'],
-            'new_total_sats': data.get('total_sats', 0) + data['sats_earned']
+            'new_total_sats': new_total_sats
         }), 200
         
     except Exception as e:
@@ -297,9 +301,12 @@ def solve_puzzle():
     preimage = data.get('preimage')
     player_id = data.get('player_id')
     
-    if not all([puzzle_id, preimage, player_id]):
+    if puzzle_id is None or preimage is None or player_id is None:
         return jsonify({'error': 'Missing required fields'}), 400
-    
+
+    if not isinstance(preimage, str) or len(preimage) > 256:
+        return jsonify({'error': 'Invalid preimage'}), 400
+
     try:
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()

@@ -73,10 +73,10 @@ class BitcoinPuzzle:
     
     def calculate_reward(self) -> int:
         """Calculate SAT reward based on puzzle difficulty"""
-        # Base reward + bonus for hash complexity
+        # Base reward + bonus scaled by preimage length (the actual puzzle complexity)
         base_reward = random.randint(250, 1000)
-        hash_complexity_bonus = len(self.target_hash) * 2
-        return base_reward + hash_complexity_bonus
+        preimage_complexity_bonus = len(self.current_preimage or '') * 20
+        return base_reward + preimage_complexity_bonus
     
     def get_puzzle_info(self) -> Dict[str, Any]:
         """Get current puzzle information"""
