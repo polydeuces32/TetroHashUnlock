@@ -34,6 +34,12 @@ python3 server.py
 PORT=3000 python3 server.py
 ```
 
+## 🎨 Design Tool
+
+Need to prototype UI changes (HUD, landing page, learning panel)? See
+[`docs/OPEN_DESIGN.md`](docs/OPEN_DESIGN.md) for setting up
+[Open Design](https://github.com/nexu-io/open-design) locally.
+
 ## 📱 Mobile Support
 
 The game is fully responsive and works on mobile devices with touch controls.

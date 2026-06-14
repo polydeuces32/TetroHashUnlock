@@ -56,6 +56,10 @@ wallet.txt
 # Node modules (if any)
 node_modules/
 
+# Open Design (cloned by scripts/setup-open-design.sh as a sibling dir,
+# but ignore in case it ends up nested here)
+/open-design/
+
 # Environment variables
 .env
 .env.local
