@@ -47,7 +47,7 @@ const WIN_SATS_REWARD = 5;
 const REWARD_STORAGE_KEY = "tetrohash_deep_rewards_v1";
 const GENESIS_PREVIOUS_HASH = "00000000000000000001a7f4b9d2c5e8";
 
-const COLORS = ["#6ff7ff", "#ff75eb", "#f7ff28", "#a6ff6f", "#7a9cff"];
+const COLORS = ["#00f0f0", "#b300f0", "#f0f000", "#00f000", "#4060ff"];
 
 const SHAPES = [
   [[1, 1, 1, 1]],
@@ -89,7 +89,7 @@ const LEVELS = [
     reward: 520,
     transactions: [4, 8],
     fees: [2, 8],
-    theme: ["#020b14", "#032235", "#6ff7ff"],
+    theme: ["#020b14", "#032235", "#00f0f0"],
   },
   {
     name: "Mempool Rush",
@@ -102,7 +102,7 @@ const LEVELS = [
     reward: 600,
     transactions: [8, 14],
     fees: [5, 16],
-    theme: ["#06192e", "#102f59", "#7a9cff"],
+    theme: ["#06192e", "#102f59", "#4060ff"],
   },
   {
     name: "Nonce Hunt",
@@ -115,7 +115,7 @@ const LEVELS = [
     reward: 700,
     transactions: [12, 20],
     fees: [8, 22],
-    theme: ["#111827", "#3f2d09", "#f7ff28"],
+    theme: ["#111827", "#3f2d09", "#f0f000"],
   },
   {
     name: "Fee Market Frenzy",
@@ -129,7 +129,7 @@ const LEVELS = [
     transactions: [18, 28],
     fees: [14, 38],
     surgeRows: 1,
-    theme: ["#190d1f", "#4b123d", "#ff75eb"],
+    theme: ["#190d1f", "#4b123d", "#b300f0"],
   },
   {
     name: "First Confirmation",
@@ -142,7 +142,7 @@ const LEVELS = [
     reward: 940,
     transactions: [22, 34],
     fees: [18, 46],
-    theme: ["#081b18", "#114431", "#a6ff6f"],
+    theme: ["#081b18", "#114431", "#00f000"],
   },
   {
     name: "Difficulty Adjustment",
@@ -157,7 +157,7 @@ const LEVELS = [
     fees: [24, 58],
     boss: true,
     surgeRows: 1,
-    theme: ["#101323", "#293b73", "#6ff7ff"],
+    theme: ["#101323", "#293b73", "#00f0f0"],
   },
   {
     name: "Orphan Block Warning",
@@ -171,7 +171,7 @@ const LEVELS = [
     transactions: [34, 50],
     fees: [28, 66],
     surgeRows: 2,
-    theme: ["#1d1216", "#4f1728", "#ff5f7d"],
+    theme: ["#1d1216", "#4f1728", "#ff3030"],
   },
   {
     name: "Lightning Channel Sprint",
@@ -184,7 +184,7 @@ const LEVELS = [
     reward: 1240,
     transactions: [38, 58],
     fees: [18, 44],
-    theme: ["#071327", "#142f6d", "#f7ff28"],
+    theme: ["#071327", "#142f6d", "#f0f000"],
   },
   {
     name: "Mining Pool Mayhem",
@@ -198,7 +198,7 @@ const LEVELS = [
     transactions: [42, 64],
     fees: [32, 74],
     surgeRows: 1,
-    theme: ["#071f22", "#16565e", "#6ff7ff"],
+    theme: ["#071f22", "#16565e", "#00f0f0"],
   },
   {
     name: "Halving Pressure",
@@ -213,7 +213,7 @@ const LEVELS = [
     fees: [44, 92],
     boss: true,
     surgeRows: 2,
-    theme: ["#1f1706", "#5b3b05", "#f7ff28"],
+    theme: ["#1f1706", "#5b3b05", "#f0f000"],
   },
   {
     name: "Node Sync Crisis",
@@ -227,7 +227,7 @@ const LEVELS = [
     transactions: [58, 84],
     fees: [36, 82],
     surgeRows: 2,
-    theme: ["#071716", "#17453e", "#a6ff6f"],
+    theme: ["#071716", "#17453e", "#00f000"],
   },
   {
     name: "Block Height Ascent",
@@ -241,7 +241,7 @@ const LEVELS = [
     transactions: [64, 92],
     fees: [48, 104],
     surgeRows: 2,
-    theme: ["#10162a", "#1b4d78", "#7a9cff"],
+    theme: ["#10162a", "#1b4d78", "#4060ff"],
   },
   {
     name: "Hash Storm",
@@ -256,7 +256,7 @@ const LEVELS = [
     fees: [58, 126],
     boss: true,
     surgeRows: 2,
-    theme: ["#071420", "#053d54", "#6ff7ff"],
+    theme: ["#071420", "#053d54", "#00f0f0"],
   },
   {
     name: "Final Confirmation",
@@ -270,7 +270,7 @@ const LEVELS = [
     transactions: [86, 126],
     fees: [72, 144],
     surgeRows: 3,
-    theme: ["#1f1021", "#551b5f", "#ff75eb"],
+    theme: ["#1f1021", "#551b5f", "#b300f0"],
   },
   {
     name: "Satoshi's Final Block",
@@ -285,7 +285,7 @@ const LEVELS = [
     fees: [88, 180],
     boss: true,
     surgeRows: 3,
-    theme: ["#120914", "#4c1028", "#ff75eb"],
+    theme: ["#120914", "#4c1028", "#b300f0"],
   },
 ];
 
@@ -651,11 +651,11 @@ function drawMempoolMeter() {
 
   ctx.fillStyle = "rgba(255,255,255,0.08)";
   ctx.fillRect(18, 470, 284, 12);
-  ctx.fillStyle = pressure >= 78 ? "#ff5f7d" : level.theme[2];
+  ctx.fillStyle = pressure >= 78 ? "#ff3030" : level.theme[2];
   ctx.fillRect(18, 470, Math.round(284 * (pressure / 100)), 12);
   ctx.strokeStyle = "rgba(255,255,255,0.18)";
   ctx.strokeRect(18, 470, 284, 12);
-  drawText(`mempool pressure: ${pressure}%`, 18, 502, 11, "#f7ff28", "900");
+  drawText(`mempool pressure: ${pressure}%`, 18, 502, 11, "#f0f000", "900");
 }
 
 function drawLevelIntro() {
@@ -671,7 +671,7 @@ function drawLevelIntro() {
   drawText(`LEVEL ${state.level}`, 38, 164, 13, level.theme[2], "900");
   drawWrappedText(level.name.toUpperCase(), 38, 196, 244, 23, 20, "#ffffff");
   drawWrappedText(level.lesson, 38, 250, 244, 18, 11, "#b8cedd");
-  drawText(level.boss ? "BOSS MINING ROUND" : "BUILD THE NEXT BLOCK", 38, 314, 11, "#f7ff28", "900");
+  drawText(level.boss ? "BOSS MINING ROUND" : "BUILD THE NEXT BLOCK", 38, 314, 11, "#f0f000", "900");
 }
 
 function drawTetris() {
@@ -690,8 +690,8 @@ function drawTetris() {
   if (state.piece) drawPiece(state.piece);
 
   drawText(`level: ${state.level}/${LEVELS.length}`, 18, 442, 11, "#ffffff", "900");
-  drawText(`blocks: ${state.blocksMined}/${LEVELS.length}`, 138, 442, 11, "#a6ff6f", "900");
-  drawText(`next target: ${state.targetPrefix}`, 18, 458, 11, "#ff75eb", "900");
+  drawText(`blocks: ${state.blocksMined}/${LEVELS.length}`, 138, 442, 11, "#00f000", "900");
+  drawText(`next target: ${state.targetPrefix}`, 18, 458, 11, "#b300f0", "900");
   drawMempoolMeter();
   drawLevelIntro();
 }
@@ -705,10 +705,10 @@ function drawMiningPuzzle() {
 
   ctx.fillStyle = "rgba(255,255,255,0.06)";
   ctx.fillRect(18, 74, 284, 120);
-  ctx.strokeStyle = "rgba(111,247,255,0.25)";
+  ctx.strokeStyle = "rgba(0,240,240,0.25)";
   ctx.strokeRect(18, 74, 284, 120);
 
-  drawText("BLOCK EXPLORER", 30, 98, 12, "#f7ff28", "900");
+  drawText("BLOCK EXPLORER", 30, 98, 12, "#f0f000", "900");
   drawText(`height: ${state.blockHeight + 1}`, 30, 122);
   drawText(`tx: ${state.transactionCount}  fee: ${state.feeRate} sat/vB`, 30, 144);
   drawText(`previous: ${shortHash(state.previousHash)}`, 30, 166);
@@ -716,14 +716,14 @@ function drawMiningPuzzle() {
   ctx.fillStyle = "rgba(255,255,255,0.06)";
   ctx.fillRect(18, 218, 284, 116);
   ctx.strokeStyle = state.currentHash.startsWith(state.targetPrefix)
-    ? "rgba(166,255,111,0.95)"
-    : "rgba(255,117,235,0.3)";
+    ? "rgba(0,240,0,0.95)"
+    : "rgba(179,0,240,0.3)";
   ctx.strokeRect(18, 218, 284, 116);
 
-  drawText("CURRENT SHA-256 HASH", 30, 244, 12, "#ff75eb", "900");
+  drawText("CURRENT SHA-256 HASH", 30, 244, 12, "#b300f0", "900");
   drawText(shortHash(state.currentHash), 30, 272, 13, "#ffffff", "900");
   drawText(`nonce: ${state.nonce}`, 30, 302, 12, "#b8cedd", "900");
-  drawText(`target: starts with ${state.targetPrefix}`, 138, 302, 12, "#a6ff6f", "900");
+  drawText(`target: starts with ${state.targetPrefix}`, 138, 302, 12, "#00f000", "900");
 
   ctx.fillStyle = "rgba(255,255,255,0.06)";
   ctx.fillRect(18, 358, 284, 118);
@@ -738,7 +738,7 @@ function drawMiningPuzzle() {
       30,
       408 + index * 20,
       11,
-      item.valid ? "#a6ff6f" : "#b8cedd",
+      item.valid ? "#00f000" : "#b8cedd",
       "700"
     );
   });
@@ -749,15 +749,15 @@ function drawVictory() {
 
   ctx.fillStyle = "rgba(2, 11, 20, 0.9)";
   ctx.fillRect(18, 94, 284, 330);
-  ctx.strokeStyle = "#f7ff28";
+  ctx.strokeStyle = "#f0f000";
   ctx.lineWidth = 2;
   ctx.strokeRect(18, 94, 284, 330);
 
-  drawText("GAME WON", 44, 142, 26, "#f7ff28", "1000");
+  drawText("GAME WON", 44, 142, 26, "#f0f000", "1000");
   drawWrappedText("You built a 15-block chain, mined the final proof-of-work puzzle, and earned 5 in-game sats.", 44, 190, 230, 21, 13, "#ffffff");
-  drawText(`score: ${state.score}`, 44, 280, 13, "#6ff7ff", "900");
-  drawText(`best combo: ${state.bestCombo}`, 44, 306, 13, "#a6ff6f", "900");
-  drawText(`sats earned: +${state.runSats}`, 44, 332, 13, "#f7ff28", "900");
+  drawText(`score: ${state.score}`, 44, 280, 13, "#00f0f0", "900");
+  drawText(`best combo: ${state.bestCombo}`, 44, 306, 13, "#00f000", "900");
+  drawText(`sats earned: +${state.runSats}`, 44, 332, 13, "#f0f000", "900");
   drawText("Local sats saved. Lightning claim later.", 44, 382, 11, "#b8cedd", "900");
 }
 
@@ -767,11 +767,11 @@ function drawPausedOverlay() {
 
   ctx.fillStyle = "rgba(255,255,255,0.08)";
   ctx.fillRect(28, 176, 264, 154);
-  ctx.strokeStyle = "#f7ff28";
+  ctx.strokeStyle = "#f0f000";
   ctx.lineWidth = 2;
   ctx.strokeRect(28, 176, 264, 154);
 
-  drawText("PAUSED", 94, 224, 28, "#f7ff28", "1000");
+  drawText("PAUSED", 94, 224, 28, "#f0f000", "1000");
   drawWrappedText(
     "Read the AI tutor and mission card, then press P or Resume to continue.",
     48,
