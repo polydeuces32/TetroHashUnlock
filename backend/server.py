@@ -207,7 +207,7 @@ def submit_game():
         ''', (data['sats_earned'], data['score'], data['player_id']))
         
         # Update leaderboard
-        update_leaderboard(data['game_mode'], data['player_id'], data['score'])
+        update_leaderboard(cursor, data['game_mode'], data['player_id'], data['score'])
 
         cursor.execute('SELECT total_sats FROM players WHERE id = ?', (data['player_id'],))
         row = cursor.fetchone()
@@ -386,33 +386,27 @@ def get_global_stats():
         'timestamp': datetime.now().isoformat()
     })
 
-def update_leaderboard(game_mode: str, player_id: int, score: int):
-    """Update leaderboard for a game mode"""
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    
+def update_leaderboard(cursor, game_mode: str, player_id: int, score: int):
+    """Update leaderboard for a game mode using the caller's connection/cursor"""
     # Get current top scores
     cursor.execute('''
-        SELECT player_id, score FROM games 
-        WHERE game_mode = ? 
-        ORDER BY score DESC 
+        SELECT player_id, score FROM games
+        WHERE game_mode = ?
+        ORDER BY score DESC
         LIMIT 100
     ''', (game_mode,))
-    
+
     scores = cursor.fetchall()
-    
+
     # Clear current leaderboard
     cursor.execute('DELETE FROM leaderboards WHERE game_mode = ?', (game_mode,))
-    
+
     # Insert new leaderboard
     for rank, (pid, s) in enumerate(scores, 1):
         cursor.execute('''
             INSERT INTO leaderboards (game_mode, player_id, score, rank)
             VALUES (?, ?, ?, ?)
         ''', (game_mode, pid, s, rank))
-    
-    conn.commit()
-    conn.close()
 
 def generate_preimage(difficulty: int) -> str:
     """Generate a preimage string based on difficulty"""
