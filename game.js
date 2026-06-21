@@ -468,11 +468,11 @@ function updateDifficulty() {
 
   const level = getCurrentLevel();
   const profile = learning.getDifficultyProfile(state.score);
-  const adaptiveTrim = profile.difficulty <= 2 ? 45 : 0;
 
   state.targetZeros = level.targetZeros;
   state.targetPrefix = "0".repeat(state.targetZeros);
-  state.fallInterval = Math.max(245, level.fallInterval + adaptiveTrim);
+  // Campaign sets the floor; the tutor can only slow drops for struggling players.
+  state.fallInterval = Math.max(245, Math.max(level.fallInterval, profile.fallInterval));
 
   const pressure = calculateMempoolPressure();
   const tutorMessage = learning.getTutorMessage({
@@ -534,7 +534,9 @@ function updateDifficulty() {
       ? "AI tutor: hidden"
       : state.mode === "mining"
       ? `Mining target: ${state.targetPrefix} (${level.hashBatch} hashes/press)`
-      : `Daily challenge: mine ${dailyTarget} blocks`;
+      : profile.fallInterval > level.fallInterval
+        ? `Tutor relief: ${state.fallInterval}ms drop (${profile.adaptation})`
+        : `Drop pace: ${state.fallInterval}ms · daily ${dailyTarget} blocks`;
 
   renderAchievements();
   if (runReportEl) runReportEl.textContent = state.report;

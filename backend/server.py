@@ -17,6 +17,15 @@ from typing import Dict, List, Optional
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+STATIC_FILES = {
+    "index.html",
+    "game.js",
+    "learning.js",
+    "sound.js",
+    "styles.css",
+}
+
 # Database setup
 DB_FILE = 'tetrohash.db'
 
@@ -92,7 +101,18 @@ init_db()
 @app.route('/')
 def index():
     """Serve the main game page"""
-    return send_from_directory('.', 'tetrohash_unified.html')
+    return send_from_directory(ROOT_DIR, 'index.html')
+
+
+@app.route('/<path:filename>')
+def static_files(filename):
+    """Serve frontend assets from the repo root"""
+    if filename not in STATIC_FILES and not (
+        filename.startswith("assets/") and ".." not in filename
+    ):
+        return jsonify({'error': 'Not found'}), 404
+
+    return send_from_directory(ROOT_DIR, filename)
 
 @app.route('/api/health')
 def health_check():

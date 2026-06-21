@@ -1,50 +1,70 @@
-# 🎮 TetroHashUnlock
+# TetroHashUnlock
 
-A modern Tetris game with Bitcoin integration, AI assistance, and educational features.
+Bitcoin Tetris with real SHA-256 mining puzzles, a local AI tutor, and a 15-level campaign.
 
-## 🌐 Play Now
+## Play Now
 
-**Live Game**: [https://polydeuces32.github.io/TetroHashUnlock/](https://polydeuces32.github.io/TetroHashUnlock/)
+**Live game:** [https://polydeuces32.github.io/TetroHashUnlock/](https://polydeuces32.github.io/TetroHashUnlock/)
 
-## 🎯 Game Features
+## What You Play
 
-- **🎮 Classic Tetris** - Traditional Tetris gameplay
-- **🧩 Bitcoin Puzzles** - SHA-256 hash puzzles for SAT rewards
-- **🤖 AI Assistant** - Smart move suggestions
-- **📚 Learning Mode** - Educational Bitcoin concepts
-- **🏆 Leaderboards** - Track high scores
-- **💰 SAT Rewards** - Earn Bitcoin sats
+One unified campaign:
 
-## 🎮 How to Play
+1. Clear transaction rows in Bitcoin Tetris.
+2. Build block data from your run.
+3. Mine real browser SHA-256 hashes until the prefix meets the target.
+4. Chain blocks across 15 named Bitcoin missions.
+5. Earn **5 in-game sats** when you complete the full chain.
 
-- **Arrow Keys** - Move and rotate pieces
-- **Space Bar** - Drop pieces instantly
-- **P Key** - Pause/Resume
-- **R Key** - Restart game
-- **M Key** - Toggle music
-- **A Key** - Toggle AI assistance
+In-game sats are stored locally. Real Lightning withdrawals are not live yet. See [docs/reward-system-status.md](docs/reward-system-status.md).
 
-## 🚀 Local Development
+## Controls
+
+| Input | Action |
+|-------|--------|
+| ← / → | Move block |
+| ↓ | Soft drop |
+| ↑ / R | Rotate |
+| Space | Hard drop (Tetris) / mine hash batch (mining) |
+| P | Pause / resume |
+| Esc | Reset run |
+
+Touch controls are available on mobile.
+
+## Local Development
+
+**Static frontend (recommended):**
 
 ```bash
-# Start the game locally
-python3 server.py
-
-# Or with custom port
-PORT=3000 python3 server.py
+# From the repo root
+python3 -m http.server 8000
+# Open http://localhost:8000/index.html
 ```
 
-## 📱 Mobile Support
+**Flask API + frontend:**
 
-The game is fully responsive and works on mobile devices with touch controls.
+```bash
+cd backend
+pip install -r requirements.txt
+python3 server.py
+# Open http://localhost:5000/
+```
 
-## 🎯 Game Modes
+## Project Layout
 
-1. **Normal Mode** - Classic Tetris gameplay
-2. **Puzzle Mode** - Bitcoin SHA-256 puzzles
-3. **AI Battle** - Play against AI
-4. **Learning Mode** - Learn Bitcoin concepts
+| Path | Purpose |
+|------|---------|
+| `index.html` | Main game page |
+| `game.js` | Campaign engine, SHA-256 mining, rewards |
+| `learning.js` | Adaptive AI tutor and player profile |
+| `sound.js` | Web Audio feedback |
+| `styles.css` | UI styling |
+| `backend/server.py` | Optional REST API and leaderboard backend |
+
+## Learning Loop
+
+Quality audits and cycle notes live in [docs/loops/master-learning-loop.md](docs/loops/master-learning-loop.md).
 
 ---
 
-**Enjoy playing TetroHashUnlock!** 🎮✨
+MIT License · Created by Giancarlo Vizhnay
