@@ -8,8 +8,14 @@ class TetroHashSoundEngine {
     if (this.audioContext) return;
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.audioContext = new AudioContext();
-    this.enabled = true;
+    if (!AudioContext) return;
+
+    try {
+      this.audioContext = new AudioContext();
+      this.enabled = true;
+    } catch {
+      this.enabled = false;
+    }
   }
 
   tone(frequency, duration = 0.08, type = "square", gainValue = 0.035) {
