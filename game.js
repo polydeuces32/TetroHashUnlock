@@ -1,5 +1,5 @@
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas ? canvas.getContext("2d") : null;
 
 const scoreEl = document.getElementById("score");
 const levelEl = document.getElementById("level");
@@ -494,9 +494,9 @@ function updateDifficulty() {
     aiLearningMode: state.aiLearningMode,
   });
 
-  scoreEl.textContent = state.score;
-  levelEl.textContent = `${state.level}/${LEVELS.length}`;
-  pressureEl.textContent = getPressureLabel(pressure);
+  if (scoreEl) scoreEl.textContent = state.score;
+  if (levelEl) levelEl.textContent = `${state.level}/${LEVELS.length}`;
+  if (pressureEl) pressureEl.textContent = getPressureLabel(pressure);
   if (modelStateEl) {
     modelStateEl.textContent = state.aiLearningMode
       ? friendlyPaceLabel(profile, level)
@@ -798,6 +798,8 @@ function drawPausedOverlay() {
 }
 
 function draw() {
+  if (!ctx) return;
+
   if (state.won) {
     drawVictory();
   } else if (state.mode === "mining") {
@@ -1067,7 +1069,7 @@ function handleValidBlock(hash) {
 
   state.level = getLevelByBlocksMined();
   state.mode = "tetris";
-  state.levelIntroUntil = Date.now() + 3600;
+  state.levelIntroUntil = Date.now() + 1200;
 
   const nextLevel = getCurrentLevel();
   if (nextLevel.surgeRows) addMempoolSurge(nextLevel.surgeRows);
@@ -1197,7 +1199,7 @@ function startGame() {
   state.lastTime = 0;
   state.dropCounter = 0;
   state.miningBusy = false;
-  state.levelIntroUntil = Date.now() + 3600;
+  state.levelIntroUntil = Date.now() + 1200;
   state.report = `Today's goal: finish ${dailyTarget} blocks if you can. Win the full game for ${WIN_SATS_REWARD} bonus sats.`;
 
   learning.startSession();
@@ -1205,7 +1207,7 @@ function startGame() {
   spawnPiece();
 
   gameMessageEl.textContent =
-    "Go! Clear a row, then press Space to mine.";
+    "Go! Use arrow keys or touch buttons. Clear a row, then press Space to mine.";
 
   state.animationId = requestAnimationFrame(update);
 }
@@ -1341,9 +1343,29 @@ document.querySelectorAll("[data-control]").forEach((button) => {
   });
 });
 
-startButton.addEventListener("click", startGame);
-resetButton.addEventListener("click", resetGame);
-pauseButton.addEventListener("click", togglePause);
-learningModeButton.addEventListener("click", toggleLearningMode);
+function bootGame() {
+  if (!canvas || !ctx) {
+    if (gameMessageEl) {
+      gameMessageEl.textContent = "Game could not load. Please refresh the page.";
+    }
+    return;
+  }
 
-resetGame();
+  startButton?.addEventListener("click", () => {
+    startGame();
+    canvas?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  resetButton?.addEventListener("click", resetGame);
+  pauseButton?.addEventListener("click", togglePause);
+  learningModeButton?.addEventListener("click", toggleLearningMode);
+
+  document.getElementById("heroStart")?.addEventListener("click", () => {
+    startGame();
+    document.getElementById("game")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    canvas?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  resetGame();
+}
+
+bootGame();

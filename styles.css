@@ -365,7 +365,29 @@ main,
   position: relative;
   overflow: hidden;
   padding: 18px;
-  background: var(--panel-strong);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(111, 247, 255, 0.13), transparent 20rem),
+    var(--panel-strong);
+}
+
+.game-card::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  pointer-events: none;
+  background:
+    conic-gradient(
+      from 90deg,
+      transparent,
+      rgba(111, 247, 255, 0.18),
+      transparent,
+      rgba(255, 117, 235, 0.16),
+      transparent,
+      rgba(247, 255, 40, 0.13),
+      transparent
+    );
+  animation: spin 13s linear infinite;
+  opacity: 0.8;
 }
 
 .game-card > * {
@@ -622,6 +644,23 @@ main,
 @media (max-width: 1020px) {
   .game-layout {
     grid-template-columns: 1fr;
+  }
+
+  .game-card {
+    order: 1;
+  }
+
+  .panel:first-of-type {
+    order: 2;
+  }
+
+  .panel:last-of-type {
+    order: 3;
+  }
+
+  .game-layout {
+    display: flex;
+    flex-direction: column;
   }
 
   .cards {
