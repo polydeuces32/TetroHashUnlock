@@ -105,10 +105,10 @@ class TetroHashLearningEngine {
 
     const fallInterval = Math.max(130, 850 - difficulty * 70);
     const pressureLabel =
-      difficulty <= 2 ? "Low" :
-      difficulty <= 5 ? "Medium" :
-      difficulty <= 7 ? "High" :
-      "Critical";
+      difficulty <= 2 ? "Calm" :
+      difficulty <= 5 ? "Steady" :
+      difficulty <= 7 ? "Quick" :
+      "Fast";
 
     return {
       difficulty,
@@ -117,19 +117,19 @@ class TetroHashLearningEngine {
       effectIntensity: Math.min(1, difficulty / 9),
       adaptation:
         difficulty > this.profile.learnedDifficulty
-          ? "Increasing pressure"
+          ? "Speeding up"
           : difficulty < this.profile.learnedDifficulty
-            ? "Reducing pressure"
-            : "Stable pressure",
+            ? "Slowing down"
+            : "Steady pace",
     };
   }
 
   getLearningPath(blocksMined = 0, won = false) {
-    if (won) return "Satoshi Path Complete";
-    if (blocksMined >= 12) return "Validator Path";
-    if (blocksMined >= 8) return "Proof-of-Work Path";
-    if (blocksMined >= 4) return "Block Builder Path";
-    return "Beginner Mining Path";
+    if (won) return "You finished the whole game!";
+    if (blocksMined >= 12) return "Almost at the end";
+    if (blocksMined >= 8) return "Over halfway";
+    if (blocksMined >= 4) return "Getting the hang of it";
+    return "Just getting started";
   }
 
   getTutorMessage(context = {}) {
@@ -147,59 +147,59 @@ class TetroHashLearningEngine {
     } = context;
 
     if (!aiLearningMode) {
-      return "AI Learning Mode is off. Gameplay continues, but tutor hints and adaptive explanations are hidden.";
+      return "Hints are off. Turn them back on anytime if you want help.";
     }
 
     if (won) {
-      return "Run complete. You linked gameplay, block data, nonce search, and proof-of-work into one full Bitcoin lesson.";
+      return "You beat all 15 levels. Great job!";
     }
 
     if (paused) {
-      return "Paused. Use this moment to read the mission, then resume when you understand the next Bitcoin concept.";
+      return "Paused. Read your mission, then press Resume when ready.";
     }
 
     if (mode === "mining") {
       if (attempts === 0) {
-        return `Tutor: ${levelName} is ready to mine. Press Space to test nonce batches until the hash starts with ${targetPrefix}.`;
+        return `Press Space to mine. You need a hash that starts with ${targetPrefix}.`;
       }
 
       if (attempts > 180) {
-        return "Tutor: proof-of-work can feel random because it is search, not a puzzle with a shortcut. Keep changing the nonce.";
+        return "Mining is mostly luck and patience. Keep pressing Space.";
       }
 
-      return `Tutor: every failed hash still teaches the target rule. You need a hash prefix of ${targetPrefix}.`;
+      return `Keep going — find a hash starting with ${targetPrefix}.`;
     }
 
     if (pressure >= 78) {
-      return "Tutor: mempool pressure is critical. Clear space near the top before trying to build a perfect combo.";
+      return "Board is getting full. Clear a row near the top first.";
     }
 
     if (this.session.mistakes >= 6) {
-      return "Tutor: slow down and rotate earlier. Good miners preserve optionality before pressure reaches the top rows.";
+      return "Slow down a little and rotate earlier. You have got this.";
     }
 
     if (this.getMovesPerMinute() > 85) {
-      return "Tutor: your speed is high. Focus on clean placement so fast moves turn into reliable row clears.";
+      return "Nice speed! Focus on clean rows so you do not trap yourself.";
     }
 
     const remaining = Math.max(0, linesToMine - linesSinceMine);
-    return `Tutor: clear ${remaining || linesToMine} transaction row${remaining === 1 ? "" : "s"} to build the next block for ${levelName}.`;
+    return `Clear ${remaining || linesToMine} more row${remaining === 1 ? "" : "s"}, then press Space to mine.`;
   }
 
   getRunLesson(summary = {}, blocksMined = 0, won = false) {
     if (won) {
-      return "Mastery lesson: you completed the full loop from mempool pressure to chained proof-of-work.";
+      return "You finished the full run — come back anytime for another try.";
     }
 
     if (blocksMined === 0) {
-      return "Next lesson: focus on clearing your first transaction row before the board fills.";
+      return "Tip: clear one full row before the board fills up.";
     }
 
     if ((summary.mistakes || 0) > 6) {
-      return "Next lesson: rotate earlier and leave columns open so mining chances begin from a stable board.";
+      return "Tip: rotate earlier and leave a gap open for long pieces.";
     }
 
-    return "Next lesson: connect each mined block to the previous hash and push deeper into the campaign.";
+    return "Tip: clear rows, mine the block, then keep going to the next level.";
   }
 
   completeSession(score = 0) {

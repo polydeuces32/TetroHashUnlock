@@ -40,7 +40,7 @@ essentialFiles.forEach((file) => {
 console.log("\nHTML structure");
 const htmlContent = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 [
-  "<title>TetroHash Deep",
+  "<title>TetroHash",
   'id="gameCanvas"',
   'id="startGame"',
   'id="learningModeToggle"',
@@ -73,8 +73,8 @@ console.log("\nREADME alignment");
 const readmeContent = fs.readFileSync(path.join(ROOT, "README.md"), "utf8");
 [
   "index.html",
-  "15-level",
-  "in-game sats",
+  "15 levels",
+  "bonus sats",
   "Space",
 ].forEach((snippet) => assert(readmeContent.includes(snippet), `README.md contains: ${snippet}`));
 assert(!readmeContent.includes("Normal Mode"), "README.md no longer lists removed game modes");
