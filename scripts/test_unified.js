@@ -1,139 +1,89 @@
 #!/usr/bin/env node
 
-// TetroHashUnlock Unified Test Script
-// Tests the consolidated functionality
+const fs = require("fs");
+const path = require("path");
 
-const fs = require('fs');
-const path = require('path');
+const ROOT = path.join(__dirname, "..");
 
-console.log('🧪 TetroHashUnlock Unified Test');
-console.log('================================');
-
-// Test file existence
-const essentialFiles = [
-    'tetrohash_unified.html',
-    'tetrohash_unified.js',
-    'styles.css',
-    'bitcoin_logic.py',
-    'reward.py',
-    'package.json',
-    'README.md',
-    'LICENSE'
-];
+console.log("TetroHashUnlock Frontend Test");
+console.log("=============================");
 
 let passedTests = 0;
-let totalTests = essentialFiles.length;
+let totalTests = 0;
 
-console.log('\n📁 Testing file existence...');
+function assert(condition, message) {
+  totalTests += 1;
+  if (condition) {
+    console.log(`PASS ${message}`);
+    passedTests += 1;
+  } else {
+    console.log(`FAIL ${message}`);
+  }
+}
 
-essentialFiles.forEach(file => {
-    const filePath = path.join(__dirname, file);
-    
-    if (fs.existsSync(filePath)) {
-        const stats = fs.statSync(filePath);
-        console.log(`✅ ${file} (${stats.size} bytes)`);
-        passedTests++;
-    } else {
-        console.log(`❌ ${file} - MISSING`);
-    }
+const essentialFiles = [
+  "index.html",
+  "game.js",
+  "learning.js",
+  "sound.js",
+  "styles.css",
+  "README.md",
+  "LICENSE",
+];
+
+console.log("\nFile existence");
+essentialFiles.forEach((file) => {
+  const filePath = path.join(ROOT, file);
+  assert(fs.existsSync(filePath), `${file} exists`);
 });
 
-// Test HTML structure
-console.log('\n🔍 Testing HTML structure...');
-try {
-    const htmlContent = fs.readFileSync(path.join(__dirname, 'tetrohash_unified.html'), 'utf8');
-    
-    const requiredElements = [
-        '<title>TetroHashUnlock v2.0 - Unified Edition</title>',
-        'class="game-container"',
-        'id="game-board"',
-        'id="mode-selection"',
-        'id="game-area"',
-        'class="control-panel"',
-        'UnifiedTetroHash'
-    ];
-    
-    requiredElements.forEach(element => {
-        if (htmlContent.includes(element)) {
-            console.log(`✅ Found: ${element}`);
-            passedTests++;
-        } else {
-            console.log(`❌ Missing: ${element}`);
-        }
-    });
-    
-    totalTests += requiredElements.length;
-} catch (error) {
-    console.log(`❌ Error reading HTML file: ${error.message}`);
+console.log("\nHTML structure");
+const htmlContent = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+[
+  "<title>TetroHash",
+  'id="gameCanvas"',
+  'id="startGame"',
+  'id="learningModeToggle"',
+  'src="./learning.js"',
+  'src="./game.js"',
+].forEach((snippet) => assert(htmlContent.includes(snippet), `index.html contains: ${snippet}`));
+
+console.log("\nJavaScript structure");
+const gameContent = fs.readFileSync(path.join(ROOT, "game.js"), "utf8");
+[
+  "const LEVELS = [",
+  "async function sha256Hex",
+  "new window.TetroHashLearningEngine",
+  "Math.max(level.fallInterval, profile.fallInterval)",
+].forEach((snippet) => assert(gameContent.includes(snippet), `game.js contains: ${snippet}`));
+
+const learningContent = fs.readFileSync(path.join(ROOT, "learning.js"), "utf8");
+[
+  "class TetroHashLearningEngine",
+  "getDifficultyProfile",
+  "getTutorMessage",
+].forEach((snippet) => assert(learningContent.includes(snippet), `learning.js contains: ${snippet}`));
+
+console.log("\nBackend entry point");
+const serverContent = fs.readFileSync(path.join(ROOT, "backend/server.py"), "utf8");
+assert(serverContent.includes("send_from_directory(ROOT_DIR, 'index.html')"), "server.py serves index.html");
+assert(!serverContent.includes("tetrohash_unified.html"), "server.py no longer references tetrohash_unified.html");
+
+console.log("\nREADME alignment");
+const readmeContent = fs.readFileSync(path.join(ROOT, "README.md"), "utf8");
+[
+  "index.html",
+  "15 levels",
+  "bonus sats",
+  "Space",
+].forEach((snippet) => assert(readmeContent.includes(snippet), `README.md contains: ${snippet}`));
+assert(!readmeContent.includes("Normal Mode"), "README.md no longer lists removed game modes");
+
+console.log("\nResults");
+console.log(`Passed: ${passedTests}/${totalTests}`);
+
+if (passedTests !== totalTests) {
+  process.exit(1);
 }
 
-// Test JavaScript structure
-console.log('\n🔍 Testing JavaScript structure...');
-try {
-    const jsContent = fs.readFileSync(path.join(__dirname, 'tetrohash_unified.js'), 'utf8');
-    
-    const requiredClasses = [
-        'class TetroHashUnifiedEngine',
-        'initAudio()',
-        'initML()',
-        'playSound(',
-        'playCoinSound()',
-        'generatePuzzle()',
-        'checkPuzzleSolution()',
-        'calculateFinalSATs()',
-        'showSATReward('
-    ];
-    
-    requiredClasses.forEach(cls => {
-        if (jsContent.includes(cls)) {
-            console.log(`✅ Found: ${cls}`);
-            passedTests++;
-        } else {
-            console.log(`❌ Missing: ${cls}`);
-        }
-    });
-    
-    totalTests += requiredClasses.length;
-} catch (error) {
-    console.log(`❌ Error reading JavaScript file: ${error.message}`);
-}
-
-// Test package.json
-console.log('\n🔍 Testing package.json...');
-try {
-    const packageContent = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
-    
-    if (packageContent.main === 'tetrohash_unified.html') {
-        console.log('✅ Main entry point correct');
-        passedTests++;
-    } else {
-        console.log('❌ Main entry point incorrect');
-    }
-    
-    if (packageContent.version === '3.0.0') {
-        console.log('✅ Version updated to 3.0.0');
-        passedTests++;
-    } else {
-        console.log('❌ Version not updated');
-    }
-    
-    totalTests += 2;
-} catch (error) {
-    console.log(`❌ Error reading package.json: ${error.message}`);
-}
-
-// Final results
-console.log('\n📊 Test Results:');
-console.log(`✅ Passed: ${passedTests}/${totalTests}`);
-console.log(`📈 Success Rate: ${((passedTests / totalTests) * 100).toFixed(1)}%`);
-
-if (passedTests === totalTests) {
-    console.log('\n🎉 All tests passed! Unified TetroHashUnlock is ready!');
-    console.log('\n🚀 To run the game:');
-    console.log('   npm start');
-    console.log('   or');
-    console.log('   open tetrohash_unified.html');
-} else {
-    console.log('\n⚠️  Some tests failed. Check the output above.');
-    process.exit(1);
-}
+console.log("\nFrontend source-of-truth checks passed.");

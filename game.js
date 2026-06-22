@@ -47,7 +47,7 @@ const WIN_SATS_REWARD = 5;
 const REWARD_STORAGE_KEY = "tetrohash_deep_rewards_v1";
 const GENESIS_PREVIOUS_HASH = "00000000000000000001a7f4b9d2c5e8";
 
-const COLORS = ["#00f0f0", "#b300f0", "#f0f000", "#00f000", "#4060ff"];
+const COLORS = ["#6ff7ff", "#ff75eb", "#f7ff28", "#a6ff6f", "#7a9cff"];
 
 const SHAPES = [
   [[1, 1, 1, 1]],
@@ -80,8 +80,8 @@ const SHAPES = [
 const LEVELS = [
   {
     name: "Genesis Block",
-    lesson: "Every chain starts with a first block and a previous hash anchor.",
-    goal: "Clear 1 row, then mine your first valid training block.",
+    lesson: "Every Bitcoin chain starts with a first block.",
+    goal: "Clear 1 row, then press Space to mine.",
     linesToMine: 1,
     targetZeros: 2,
     hashBatch: 10,
@@ -89,7 +89,7 @@ const LEVELS = [
     reward: 520,
     transactions: [4, 8],
     fees: [2, 8],
-    theme: ["#020b14", "#032235", "#00f0f0"],
+    theme: ["#020b14", "#032235", "#6ff7ff"],
   },
   {
     name: "Mempool Rush",
@@ -102,7 +102,7 @@ const LEVELS = [
     reward: 600,
     transactions: [8, 14],
     fees: [5, 16],
-    theme: ["#06192e", "#102f59", "#4060ff"],
+    theme: ["#06192e", "#102f59", "#7a9cff"],
   },
   {
     name: "Nonce Hunt",
@@ -115,7 +115,7 @@ const LEVELS = [
     reward: 700,
     transactions: [12, 20],
     fees: [8, 22],
-    theme: ["#111827", "#3f2d09", "#f0f000"],
+    theme: ["#111827", "#3f2d09", "#f7ff28"],
   },
   {
     name: "Fee Market Frenzy",
@@ -129,7 +129,7 @@ const LEVELS = [
     transactions: [18, 28],
     fees: [14, 38],
     surgeRows: 1,
-    theme: ["#190d1f", "#4b123d", "#b300f0"],
+    theme: ["#190d1f", "#4b123d", "#ff75eb"],
   },
   {
     name: "First Confirmation",
@@ -142,7 +142,7 @@ const LEVELS = [
     reward: 940,
     transactions: [22, 34],
     fees: [18, 46],
-    theme: ["#081b18", "#114431", "#00f000"],
+    theme: ["#081b18", "#114431", "#a6ff6f"],
   },
   {
     name: "Difficulty Adjustment",
@@ -157,7 +157,7 @@ const LEVELS = [
     fees: [24, 58],
     boss: true,
     surgeRows: 1,
-    theme: ["#101323", "#293b73", "#00f0f0"],
+    theme: ["#101323", "#293b73", "#6ff7ff"],
   },
   {
     name: "Orphan Block Warning",
@@ -171,7 +171,7 @@ const LEVELS = [
     transactions: [34, 50],
     fees: [28, 66],
     surgeRows: 2,
-    theme: ["#1d1216", "#4f1728", "#ff3030"],
+    theme: ["#1d1216", "#4f1728", "#ff5f7d"],
   },
   {
     name: "Lightning Channel Sprint",
@@ -184,7 +184,7 @@ const LEVELS = [
     reward: 1240,
     transactions: [38, 58],
     fees: [18, 44],
-    theme: ["#071327", "#142f6d", "#f0f000"],
+    theme: ["#071327", "#142f6d", "#f7ff28"],
   },
   {
     name: "Mining Pool Mayhem",
@@ -198,7 +198,7 @@ const LEVELS = [
     transactions: [42, 64],
     fees: [32, 74],
     surgeRows: 1,
-    theme: ["#071f22", "#16565e", "#00f0f0"],
+    theme: ["#071f22", "#16565e", "#6ff7ff"],
   },
   {
     name: "Halving Pressure",
@@ -213,7 +213,7 @@ const LEVELS = [
     fees: [44, 92],
     boss: true,
     surgeRows: 2,
-    theme: ["#1f1706", "#5b3b05", "#f0f000"],
+    theme: ["#1f1706", "#5b3b05", "#f7ff28"],
   },
   {
     name: "Node Sync Crisis",
@@ -227,7 +227,7 @@ const LEVELS = [
     transactions: [58, 84],
     fees: [36, 82],
     surgeRows: 2,
-    theme: ["#071716", "#17453e", "#00f000"],
+    theme: ["#071716", "#17453e", "#a6ff6f"],
   },
   {
     name: "Block Height Ascent",
@@ -241,7 +241,7 @@ const LEVELS = [
     transactions: [64, 92],
     fees: [48, 104],
     surgeRows: 2,
-    theme: ["#10162a", "#1b4d78", "#4060ff"],
+    theme: ["#10162a", "#1b4d78", "#7a9cff"],
   },
   {
     name: "Hash Storm",
@@ -256,7 +256,7 @@ const LEVELS = [
     fees: [58, 126],
     boss: true,
     surgeRows: 2,
-    theme: ["#071420", "#053d54", "#00f0f0"],
+    theme: ["#071420", "#053d54", "#6ff7ff"],
   },
   {
     name: "Final Confirmation",
@@ -270,7 +270,7 @@ const LEVELS = [
     transactions: [86, 126],
     fees: [72, 144],
     surgeRows: 3,
-    theme: ["#1f1021", "#551b5f", "#b300f0"],
+    theme: ["#1f1021", "#551b5f", "#ff75eb"],
   },
   {
     name: "Satoshi's Final Block",
@@ -285,7 +285,7 @@ const LEVELS = [
     fees: [88, 180],
     boss: true,
     surgeRows: 3,
-    theme: ["#120914", "#4c1028", "#b300f0"],
+    theme: ["#120914", "#4c1028", "#ff75eb"],
   },
 ];
 
@@ -339,7 +339,7 @@ const state = {
   animationId: null,
   miningBusy: false,
   levelIntroUntil: 0,
-  report: "Start a run to build your mining report.",
+  report: "Press Start and clear your first row.",
 };
 
 function loadRewardProfile() {
@@ -450,10 +450,16 @@ function calculateMempoolPressure() {
 }
 
 function getPressureLabel(pressure) {
-  if (pressure < 30) return "Low";
-  if (pressure < 55) return "Medium";
-  if (pressure < 78) return "High";
-  return "Critical";
+  if (pressure < 30) return "Calm";
+  if (pressure < 55) return "Busy";
+  if (pressure < 78) return "Tight";
+  return "Full";
+}
+
+function friendlyPaceLabel(profile, level) {
+  if (profile.fallInterval > level.fallInterval) return "Taking it easy";
+  if (profile.difficulty >= 7) return "Picking up speed";
+  return "Steady pace";
 }
 
 function unlockAchievement(id) {
@@ -468,11 +474,11 @@ function updateDifficulty() {
 
   const level = getCurrentLevel();
   const profile = learning.getDifficultyProfile(state.score);
-  const adaptiveTrim = profile.difficulty <= 2 ? 45 : 0;
 
   state.targetZeros = level.targetZeros;
   state.targetPrefix = "0".repeat(state.targetZeros);
-  state.fallInterval = Math.max(245, level.fallInterval + adaptiveTrim);
+  // Campaign sets the floor; the tutor can only slow drops for struggling players.
+  state.fallInterval = Math.max(245, Math.max(level.fallInterval, profile.fallInterval));
 
   const pressure = calculateMempoolPressure();
   const tutorMessage = learning.getTutorMessage({
@@ -491,19 +497,22 @@ function updateDifficulty() {
   scoreEl.textContent = state.score;
   levelEl.textContent = `${state.level}/${LEVELS.length}`;
   pressureEl.textContent = getPressureLabel(pressure);
-  modelStateEl.textContent =
-    state.aiLearningMode ? (level.boss ? "Boss tutor" : profile.adaptation) : "Tutor off";
+  if (modelStateEl) {
+    modelStateEl.textContent = state.aiLearningMode
+      ? friendlyPaceLabel(profile, level)
+      : "Hints off";
+  }
 
   if (levelNameEl) levelNameEl.textContent = level.name;
-  if (satsBalanceEl) satsBalanceEl.textContent = `${rewardProfile.satsBalance} sats`;
-  if (runSatsEl) runSatsEl.textContent = `${state.runSats} sats`;
+  if (satsBalanceEl) satsBalanceEl.textContent = `${rewardProfile.satsBalance} bonus`;
+  if (runSatsEl) runSatsEl.textContent = `${state.runSats} this run`;
   if (blocksMinedEl) blocksMinedEl.textContent = `${state.blocksMined}/${LEVELS.length}`;
 
   if (levelProgressEl && levelProgressTextEl) {
     const progress = Math.min(100, Math.round((state.linesSinceMine / level.linesToMine) * 100));
     levelProgressEl.style.width = `${progress}%`;
     levelProgressTextEl.textContent =
-      `${Math.min(state.linesSinceMine, level.linesToMine)}/${level.linesToMine} rows to mining`;
+      `${Math.min(state.linesSinceMine, level.linesToMine)}/${level.linesToMine} rows cleared`;
   }
 
   if (missionTitleEl) missionTitleEl.textContent = `${state.level}. ${level.name}`;
@@ -514,27 +523,32 @@ function updateDifficulty() {
   if (transactionCountEl) transactionCountEl.textContent = state.transactionCount || "--";
   if (feeRateEl) feeRateEl.textContent = state.feeRate ? `${state.feeRate} sat/vB` : "--";
   if (hashPreviewEl) hashPreviewEl.textContent = shortHash(state.currentHash || state.previousHash);
-  if (aiModeStateEl) aiModeStateEl.textContent = state.aiLearningMode ? "Tutor On" : "Tutor Off";
+  if (aiModeStateEl) aiModeStateEl.textContent = state.aiLearningMode ? "Hints on" : "Hints off";
   if (aiTutorMessageEl) aiTutorMessageEl.textContent = tutorMessage;
   if (learningPathEl) learningPathEl.textContent = learning.getLearningPath(state.blocksMined, state.won);
   if (claimStatusEl) {
-    claimStatusEl.textContent =
-      state.won
-        ? `Ready locally: +${WIN_SATS_REWARD} in-game sats added. Lightning withdrawal requires backend validation.`
-        : `Win all ${LEVELS.length} levels to earn ${WIN_SATS_REWARD} in-game sats. Real Lightning claims come after anti-cheat validation.`;
+    claimStatusEl.textContent = state.won
+      ? `Nice work! +${WIN_SATS_REWARD} bonus sats saved on this device.`
+      : `Beat all ${LEVELS.length} levels to save ${WIN_SATS_REWARD} bonus sats here.`;
   }
   if (pauseButton) pauseButton.textContent = state.paused ? "Resume" : "Pause";
-  if (learningModeButton) learningModeButton.textContent = state.aiLearningMode ? "AI Learning: On" : "AI Learning: Off";
+  if (learningModeButton) {
+    learningModeButton.textContent = state.aiLearningMode ? "Hints: On" : "Hints: Off";
+  }
 
-  signalSpeedEl.textContent = `Speed: ${learning.getMovesPerMinute()} actions/min`;
-  signalMistakesEl.textContent = `Mistakes: ${learning.session.mistakes}`;
-  signalSurvivalEl.textContent = `Survival: ${learning.getSurvivalSeconds()}s`;
-  signalAdaptEl.textContent =
-    !state.aiLearningMode
-      ? "AI tutor: hidden"
-      : state.mode === "mining"
-      ? `Mining target: ${state.targetPrefix} (${level.hashBatch} hashes/press)`
-      : `Daily challenge: mine ${dailyTarget} blocks`;
+  if (signalSpeedEl) signalSpeedEl.textContent = `Speed: ${learning.getMovesPerMinute()} moves/min`;
+  if (signalMistakesEl) signalMistakesEl.textContent = `Missed spots: ${learning.session.mistakes}`;
+  if (signalSurvivalEl) signalSurvivalEl.textContent = `Time playing: ${learning.getSurvivalSeconds()}s`;
+  if (signalAdaptEl) {
+    signalAdaptEl.textContent =
+      !state.aiLearningMode
+        ? "Hints hidden"
+        : state.mode === "mining"
+          ? `Mining — keep pressing Space`
+          : profile.fallInterval > level.fallInterval
+            ? "Game slowed down to help you"
+            : friendlyPaceLabel(profile, level);
+  }
 
   renderAchievements();
   if (runReportEl) runReportEl.textContent = state.report;
@@ -548,7 +562,7 @@ function renderAchievements() {
   const unlocked = rewardProfile.achievements.slice(-5);
   if (unlocked.length === 0) {
     const empty = document.createElement("li");
-    empty.textContent = "No badges yet";
+    empty.textContent = "No badges yet — keep playing!";
     achievementListEl.appendChild(empty);
     return;
   }
@@ -651,11 +665,11 @@ function drawMempoolMeter() {
 
   ctx.fillStyle = "rgba(255,255,255,0.08)";
   ctx.fillRect(18, 470, 284, 12);
-  ctx.fillStyle = pressure >= 78 ? "#ff3030" : level.theme[2];
+  ctx.fillStyle = pressure >= 78 ? "#ff5f7d" : level.theme[2];
   ctx.fillRect(18, 470, Math.round(284 * (pressure / 100)), 12);
   ctx.strokeStyle = "rgba(255,255,255,0.18)";
   ctx.strokeRect(18, 470, 284, 12);
-  drawText(`mempool pressure: ${pressure}%`, 18, 502, 11, "#f0f000", "900");
+  drawText(`board fill: ${pressure}%`, 18, 502, 11, "#f7ff28", "900");
 }
 
 function drawLevelIntro() {
@@ -671,7 +685,7 @@ function drawLevelIntro() {
   drawText(`LEVEL ${state.level}`, 38, 164, 13, level.theme[2], "900");
   drawWrappedText(level.name.toUpperCase(), 38, 196, 244, 23, 20, "#ffffff");
   drawWrappedText(level.lesson, 38, 250, 244, 18, 11, "#b8cedd");
-  drawText(level.boss ? "BOSS MINING ROUND" : "BUILD THE NEXT BLOCK", 38, 314, 11, "#f0f000", "900");
+  drawText(level.boss ? "BIG MINING ROUND" : "CLEAR ROWS TO MINE", 38, 314, 11, "#f7ff28", "900");
 }
 
 function drawTetris() {
@@ -679,7 +693,7 @@ function drawTetris() {
   drawBackground();
 
   drawText(level.name.toUpperCase(), 18, 28, 15, level.theme[2], "900");
-  drawText(`clear ${level.linesToMine} row${level.linesToMine > 1 ? "s" : ""} to build block data`, 18, 48, 10, "#b8cedd", "900");
+  drawText(`clear ${level.linesToMine} row${level.linesToMine > 1 ? "s" : ""} to unlock mining`, 18, 48, 10, "#b8cedd", "900");
 
   state.grid.forEach((row, y) => {
     row.forEach((color, x) => {
@@ -690,8 +704,8 @@ function drawTetris() {
   if (state.piece) drawPiece(state.piece);
 
   drawText(`level: ${state.level}/${LEVELS.length}`, 18, 442, 11, "#ffffff", "900");
-  drawText(`blocks: ${state.blocksMined}/${LEVELS.length}`, 138, 442, 11, "#00f000", "900");
-  drawText(`next target: ${state.targetPrefix}`, 18, 458, 11, "#b300f0", "900");
+  drawText(`blocks: ${state.blocksMined}/${LEVELS.length}`, 138, 442, 11, "#a6ff6f", "900");
+  drawText(`next hash starts with ${state.targetPrefix}`, 18, 458, 11, "#ff75eb", "900");
   drawMempoolMeter();
   drawLevelIntro();
 }
@@ -700,37 +714,37 @@ function drawMiningPuzzle() {
   const level = getCurrentLevel();
   drawBackground();
 
-  drawText(level.boss ? "BOSS SHA-256 ROUND" : "SHA-256 MINING PUZZLE", 18, 30, 15, level.theme[2], "900");
-  drawText(`SPACE RUNS ${level.hashBatch} HASH ATTEMPTS`, 18, 50, 10, "#b8cedd", "900");
+  drawText(level.boss ? "BIG MINING ROUND" : "MINING TIME", 18, 30, 15, level.theme[2], "900");
+  drawText(`PRESS SPACE — ${level.hashBatch} tries per press`, 18, 50, 10, "#b8cedd", "900");
 
   ctx.fillStyle = "rgba(255,255,255,0.06)";
   ctx.fillRect(18, 74, 284, 120);
-  ctx.strokeStyle = "rgba(0,240,240,0.25)";
+  ctx.strokeStyle = "rgba(111,247,255,0.25)";
   ctx.strokeRect(18, 74, 284, 120);
 
-  drawText("BLOCK EXPLORER", 30, 98, 12, "#f0f000", "900");
-  drawText(`height: ${state.blockHeight + 1}`, 30, 122);
-  drawText(`tx: ${state.transactionCount}  fee: ${state.feeRate} sat/vB`, 30, 144);
-  drawText(`previous: ${shortHash(state.previousHash)}`, 30, 166);
+  drawText("YOUR BLOCK", 30, 98, 12, "#f7ff28", "900");
+  drawText(`block #${state.blockHeight + 1}`, 30, 122);
+  drawText(`try #${state.nonce}`, 30, 144);
+  drawText(`last hash: ${shortHash(state.previousHash)}`, 30, 166);
 
   ctx.fillStyle = "rgba(255,255,255,0.06)";
   ctx.fillRect(18, 218, 284, 116);
   ctx.strokeStyle = state.currentHash.startsWith(state.targetPrefix)
-    ? "rgba(0,240,0,0.95)"
-    : "rgba(179,0,240,0.3)";
+    ? "rgba(166,255,111,0.95)"
+    : "rgba(255,117,235,0.3)";
   ctx.strokeRect(18, 218, 284, 116);
 
-  drawText("CURRENT SHA-256 HASH", 30, 244, 12, "#b300f0", "900");
+  drawText("CURRENT HASH", 30, 244, 12, "#ff75eb", "900");
   drawText(shortHash(state.currentHash), 30, 272, 13, "#ffffff", "900");
-  drawText(`nonce: ${state.nonce}`, 30, 302, 12, "#b8cedd", "900");
-  drawText(`target: starts with ${state.targetPrefix}`, 138, 302, 12, "#00f000", "900");
+  drawText(`try: ${state.nonce}`, 30, 302, 12, "#b8cedd", "900");
+  drawText(`need: ${state.targetPrefix}...`, 138, 302, 12, "#a6ff6f", "900");
 
   ctx.fillStyle = "rgba(255,255,255,0.06)";
   ctx.fillRect(18, 358, 284, 118);
   ctx.strokeStyle = "rgba(255,255,255,0.12)";
   ctx.strokeRect(18, 358, 284, 118);
 
-  drawText("RECENT HASHES", 30, 382, 12, level.theme[2], "900");
+  drawText("RECENT TRIES", 30, 382, 12, level.theme[2], "900");
 
   state.recentHashes.slice(0, 4).forEach((item, index) => {
     drawText(
@@ -738,7 +752,7 @@ function drawMiningPuzzle() {
       30,
       408 + index * 20,
       11,
-      item.valid ? "#00f000" : "#b8cedd",
+      item.valid ? "#a6ff6f" : "#b8cedd",
       "700"
     );
   });
@@ -749,16 +763,16 @@ function drawVictory() {
 
   ctx.fillStyle = "rgba(2, 11, 20, 0.9)";
   ctx.fillRect(18, 94, 284, 330);
-  ctx.strokeStyle = "#f0f000";
+  ctx.strokeStyle = "#f7ff28";
   ctx.lineWidth = 2;
   ctx.strokeRect(18, 94, 284, 330);
 
-  drawText("GAME WON", 44, 142, 26, "#f0f000", "1000");
-  drawWrappedText("You built a 15-block chain, mined the final proof-of-work puzzle, and earned 5 in-game sats.", 44, 190, 230, 21, 13, "#ffffff");
-  drawText(`score: ${state.score}`, 44, 280, 13, "#00f0f0", "900");
-  drawText(`best combo: ${state.bestCombo}`, 44, 306, 13, "#00f000", "900");
-  drawText(`sats earned: +${state.runSats}`, 44, 332, 13, "#f0f000", "900");
-  drawText("Local sats saved. Lightning claim later.", 44, 382, 11, "#b8cedd", "900");
+  drawText("YOU WIN!", 44, 142, 26, "#f7ff28", "1000");
+  drawWrappedText("All 15 levels complete. Nice run!", 44, 190, 230, 21, 13, "#ffffff");
+  drawText(`score: ${state.score}`, 44, 280, 13, "#6ff7ff", "900");
+  drawText(`best streak: ${state.bestCombo}`, 44, 306, 13, "#a6ff6f", "900");
+  drawText(`bonus saved: +${state.runSats}`, 44, 332, 13, "#f7ff28", "900");
+  drawText("Saved on this device.", 44, 382, 11, "#b8cedd", "900");
 }
 
 function drawPausedOverlay() {
@@ -767,13 +781,13 @@ function drawPausedOverlay() {
 
   ctx.fillStyle = "rgba(255,255,255,0.08)";
   ctx.fillRect(28, 176, 264, 154);
-  ctx.strokeStyle = "#f0f000";
+  ctx.strokeStyle = "#f7ff28";
   ctx.lineWidth = 2;
   ctx.strokeRect(28, 176, 264, 154);
 
-  drawText("PAUSED", 94, 224, 28, "#f0f000", "1000");
+  drawText("PAUSED", 94, 224, 28, "#f7ff28", "1000");
   drawWrappedText(
-    "Read the AI tutor and mission card, then press P or Resume to continue.",
+    "Take a breath. Press Resume or P when you are ready.",
     48,
     266,
     224,
@@ -858,11 +872,11 @@ function clearLines() {
 
     if (state.linesSinceMine >= level.linesToMine) {
       gameMessageEl.textContent =
-        `${cleared} row${cleared > 1 ? "s" : ""} cleared. Block data ready for ${level.name}.`;
+        `Row cleared! Press Space to mine.`;
       enterMiningPuzzle();
     } else {
       gameMessageEl.textContent =
-        `${cleared} row${cleared > 1 ? "s" : ""} cleared. ${level.linesToMine - state.linesSinceMine} more row${level.linesToMine - state.linesSinceMine === 1 ? "" : "s"} to unlock mining.`;
+        `${cleared} row${cleared > 1 ? "s" : ""} cleared. ${level.linesToMine - state.linesSinceMine} more to unlock mining.`;
     }
   }
 }
@@ -941,7 +955,7 @@ function rotatePiece() {
     learning.recordMove("rotate");
   } else {
     learning.recordMistake();
-    gameMessageEl.textContent = "Rotation blocked. Wall or transaction collision.";
+    gameMessageEl.textContent = "Can't rotate there — try moving first.";
   }
 }
 
@@ -959,7 +973,7 @@ function enterMiningPuzzle() {
   draw();
 
   gameMessageEl.textContent =
-    `${level.boss ? "Boss mining round" : "Mining puzzle"} unlocked. Press Space to search ${level.hashBatch} hashes at a time for ${state.targetPrefix}.`;
+    `${level.boss ? "Big mining round" : "Mining time"}! Press Space to search for a lucky hash.`;
 }
 
 function addMempoolSurge(rows = 0) {
@@ -1005,7 +1019,7 @@ function completeVictory() {
   state.report =
     `Victory: ${LEVELS.length} blocks mined, ${state.score} points, best combo ${state.bestCombo}, +${WIN_SATS_REWARD} sats. ${learning.getRunLesson(summary, state.blocksMined, true)}`;
   gameMessageEl.textContent =
-    `Game won. You earned ${WIN_SATS_REWARD} in-game sats for completing the full chain.`;
+    `You win! +${WIN_SATS_REWARD} bonus sats saved on this device.`;
 
   updateDifficulty();
   draw();
@@ -1044,7 +1058,7 @@ function handleValidBlock(hash) {
   saveRewardProfile();
 
   gameMessageEl.textContent =
-    `Valid block found for ${completedLevel.name}. +${reward} points. Chain height ${state.blockHeight}.`;
+    `Block found! +${reward} points. Level ${state.blocksMined}/${LEVELS.length} done.`;
 
   if (state.blocksMined >= LEVELS.length) {
     completeVictory();
@@ -1101,7 +1115,7 @@ async function mineBatch() {
   state.miningBusy = false;
   state.combo = Math.max(0, state.combo - 1);
   gameMessageEl.textContent =
-    `Attempt ${state.attempts}: no hash hit yet. Keep searching for ${state.targetPrefix}.`;
+    `Not yet — keep pressing Space. You need a hash starting with ${state.targetPrefix}.`;
 
   updateDifficulty();
   draw();
@@ -1134,8 +1148,8 @@ function togglePause() {
   state.paused = !state.paused;
   state.dropCounter = 0;
   gameMessageEl.textContent = state.paused
-    ? "Game paused. AI tutor and mission panels are ready for review."
-    : "Run resumed. Keep building blocks and mining hashes.";
+    ? "Paused. Press Resume when ready."
+    : "Back to it — clear rows and mine blocks.";
 
   updateDifficulty();
   draw();
@@ -1144,8 +1158,8 @@ function togglePause() {
 function toggleLearningMode() {
   state.aiLearningMode = !state.aiLearningMode;
   gameMessageEl.textContent = state.aiLearningMode
-    ? "AI Learning Mode enabled. Tutor hints and adaptive explanations are visible."
-    : "AI Learning Mode hidden. The campaign still adapts in the background.";
+    ? "Hints turned on."
+    : "Hints turned off — same game, less help.";
 
   updateDifficulty();
   draw();
@@ -1184,14 +1198,14 @@ function startGame() {
   state.dropCounter = 0;
   state.miningBusy = false;
   state.levelIntroUntil = Date.now() + 3600;
-  state.report = `Daily challenge: mine ${dailyTarget} blocks today. Full win pays ${WIN_SATS_REWARD} in-game sats.`;
+  state.report = `Today's goal: finish ${dailyTarget} blocks if you can. Win the full game for ${WIN_SATS_REWARD} bonus sats.`;
 
   learning.startSession();
   updateDifficulty();
   spawnPiece();
 
   gameMessageEl.textContent =
-    "Campaign started. Clear transaction rows, mine valid SHA-256 blocks, and complete all 15 levels.";
+    "Go! Clear a row, then press Space to mine.";
 
   state.animationId = requestAnimationFrame(update);
 }
@@ -1225,14 +1239,14 @@ function resetGame() {
   state.previousHash = GENESIS_PREVIOUS_HASH;
   state.miningBusy = false;
   state.levelIntroUntil = 0;
-  state.report = `Best score ${rewardProfile.bestScore}. Best level ${rewardProfile.bestLevel}/${LEVELS.length}. Wins ${rewardProfile.wins}.`;
+  state.report = `Best score: ${rewardProfile.bestScore}. Furthest level: ${rewardProfile.bestLevel}/${LEVELS.length}. Wins: ${rewardProfile.wins}.`;
 
   learning.startSession();
 
   updateDifficulty();
 
   gameMessageEl.textContent =
-    "Press Start Game to begin the 15-level Bitcoin mining campaign.";
+    "Press Start Game when you are ready.";
 
   draw();
 }
@@ -1256,7 +1270,7 @@ function endGame() {
   updateDifficulty();
 
   gameMessageEl.textContent =
-    `Game over. Best: ${summary.bestScore}. Learned difficulty: ${summary.learnedDifficulty}.`;
+    `Game over. Best score: ${summary.bestScore}. Try again!`;
 
   draw();
 }

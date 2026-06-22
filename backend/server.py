@@ -17,6 +17,15 @@ from typing import Dict, List, Optional
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+STATIC_FILES = {
+    "index.html",
+    "game.js",
+    "learning.js",
+    "sound.js",
+    "styles.css",
+}
+
 # Database setup
 DB_FILE = 'tetrohash.db'
 
@@ -92,7 +101,18 @@ init_db()
 @app.route('/')
 def index():
     """Serve the main game page"""
-    return send_from_directory(os.path.join(os.path.dirname(__file__), '..'), 'index.html')
+    return send_from_directory(ROOT_DIR, 'index.html')
+
+
+@app.route('/<path:filename>')
+def static_files(filename):
+    """Serve frontend assets from the repo root"""
+    if filename not in STATIC_FILES and not (
+        filename.startswith("assets/") and ".." not in filename
+    ):
+        return jsonify({'error': 'Not found'}), 404
+
+    return send_from_directory(ROOT_DIR, filename)
 
 @app.route('/api/health')
 def health_check():
@@ -207,19 +227,15 @@ def submit_game():
         ''', (data['sats_earned'], data['score'], data['player_id']))
         
         # Update leaderboard
-        update_leaderboard(cursor, data['game_mode'], data['player_id'], data['score'])
-
-        cursor.execute('SELECT total_sats FROM players WHERE id = ?', (data['player_id'],))
-        row = cursor.fetchone()
-        new_total_sats = row[0] if row else data['sats_earned']
-
+        update_leaderboard(data['game_mode'], data['player_id'], data['score'])
+        
         conn.commit()
         conn.close()
-
+        
         return jsonify({
             'message': 'Game submitted successfully',
             'sats_earned': data['sats_earned'],
-            'new_total_sats': new_total_sats
+            'new_total_sats': data.get('total_sats', 0) + data['sats_earned']
         }), 200
         
     except Exception as e:
@@ -301,12 +317,9 @@ def solve_puzzle():
     preimage = data.get('preimage')
     player_id = data.get('player_id')
     
-    if puzzle_id is None or preimage is None or player_id is None:
+    if not all([puzzle_id, preimage, player_id]):
         return jsonify({'error': 'Missing required fields'}), 400
-
-    if not isinstance(preimage, str) or len(preimage) > 256:
-        return jsonify({'error': 'Invalid preimage'}), 400
-
+    
     try:
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
@@ -386,27 +399,33 @@ def get_global_stats():
         'timestamp': datetime.now().isoformat()
     })
 
-def update_leaderboard(cursor, game_mode: str, player_id: int, score: int):
-    """Update leaderboard for a game mode using the caller's connection/cursor"""
+def update_leaderboard(game_mode: str, player_id: int, score: int):
+    """Update leaderboard for a game mode"""
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    
     # Get current top scores
     cursor.execute('''
-        SELECT player_id, score FROM games
-        WHERE game_mode = ?
-        ORDER BY score DESC
+        SELECT player_id, score FROM games 
+        WHERE game_mode = ? 
+        ORDER BY score DESC 
         LIMIT 100
     ''', (game_mode,))
-
+    
     scores = cursor.fetchall()
-
+    
     # Clear current leaderboard
     cursor.execute('DELETE FROM leaderboards WHERE game_mode = ?', (game_mode,))
-
+    
     # Insert new leaderboard
     for rank, (pid, s) in enumerate(scores, 1):
         cursor.execute('''
             INSERT INTO leaderboards (game_mode, player_id, score, rank)
             VALUES (?, ?, ?, ?)
         ''', (game_mode, pid, s, rank))
+    
+    conn.commit()
+    conn.close()
 
 def generate_preimage(difficulty: int) -> str:
     """Generate a preimage string based on difficulty"""

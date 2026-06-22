@@ -1,56 +1,40 @@
-# 🎮 TetroHashUnlock
+# TetroHashUnlock
 
-A modern Tetris game with Bitcoin integration, AI assistance, and educational features.
+**Play Tetris. Learn Bitcoin. Have fun.**
 
-## 🌐 Play Now
+## Play now
 
-**Live Game**: [https://polydeuces32.github.io/TetroHashUnlock/](https://polydeuces32.github.io/TetroHashUnlock/)
+[https://polydeuces32.github.io/TetroHashUnlock/](https://polydeuces32.github.io/TetroHashUnlock/)
 
-## 🎯 Game Features
+## How it works
 
-- **🎮 Classic Tetris** - Traditional Tetris gameplay
-- **🧩 Bitcoin Puzzles** - SHA-256 hash puzzles for SAT rewards
-- **🤖 AI Assistant** - Smart move suggestions
-- **📚 Learning Mode** - Educational Bitcoin concepts
-- **🏆 Leaderboards** - Track high scores
-- **💰 SAT Rewards** - Earn Bitcoin sats
+1. Press **Start Game**
+2. Clear rows with the arrow keys
+3. Press **Space** to mine when a row is cleared
+4. Beat all **15 levels** to save **5 bonus sats** on your device
 
-## 🎮 How to Play
+Bonus sats are for fun on your phone or computer — not real money yet.
 
-- **Arrow Keys** - Move and rotate pieces
-- **Space Bar** - Drop pieces instantly
-- **P Key** - Pause/Resume
-- **R Key** - Restart game
-- **M Key** - Toggle music
-- **A Key** - Toggle AI assistance
+## Controls
 
-## 🚀 Local Development
+| Key | Action |
+|-----|--------|
+| ← / → | Move |
+| ↓ | Soft drop |
+| ↑ / R | Rotate |
+| Space | Drop fast / mine |
+| P | Pause |
+| Esc | New game |
+
+Touch buttons work on mobile too.
+
+## Run locally
 
 ```bash
-# Start the game locally
-python3 server.py
-
-# Or with custom port
-PORT=3000 python3 server.py
+python3 -m http.server 8000
+# open http://localhost:8000/index.html
 ```
-
-## 🎨 Design Tool
-
-Need to prototype UI changes (HUD, landing page, learning panel)? See
-[`docs/OPEN_DESIGN.md`](docs/OPEN_DESIGN.md) for setting up
-[Open Design](https://github.com/nexu-io/open-design) locally.
-
-## 📱 Mobile Support
-
-The game is fully responsive and works on mobile devices with touch controls.
-
-## 🎯 Game Modes
-
-1. **Normal Mode** - Classic Tetris gameplay
-2. **Puzzle Mode** - Bitcoin SHA-256 puzzles
-3. **AI Battle** - Play against AI
-4. **Learning Mode** - Learn Bitcoin concepts
 
 ---
 
-**Enjoy playing TetroHashUnlock!** 🎮✨
+MIT License · Giancarlo Vizhnay

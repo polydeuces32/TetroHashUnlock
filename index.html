@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>TetroHash Deep | Bitcoin Tetris + SHA-256 Puzzles</title>
+  <title>TetroHash — Fun Bitcoin Tetris</title>
 
   <meta
     name="description"
-    content="TetroHash Deep is a Bitcoin learning arcade featuring Bitcoin Tetris, real SHA-256 puzzles, adaptive machine-learning difficulty, and sound effects."
+    content="Play Tetris, clear rows, and learn how Bitcoin mining works — one friendly level at a time."
   />
 
   <link rel="stylesheet" href="./styles.css" />
@@ -16,93 +16,63 @@
 
 <body>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="TetroHash Deep home">
+    <a class="brand" href="#top" aria-label="TetroHash home">
       <span class="brand-mark">◆</span>
       <span>
         <strong>TetroHash</strong>
-        <small>Deep</small>
+        <small>Play &amp; Learn</small>
       </span>
     </a>
 
     <nav class="nav-links" aria-label="Main navigation">
-      <a href="#about">About</a>
-      <a href="#game">Game</a>
-      <a href="#learning">Learning</a>
-      <a href="#roadmap">Roadmap</a>
+      <a href="#game">Play</a>
+      <a href="#how">How to Play</a>
     </nav>
   </header>
 
   <main id="top">
     <section class="hero section-shell">
-      <p class="date-label">Bitcoin Learning Arcade</p>
+      <p class="date-label">Free arcade game</p>
 
       <h1>
-        BITCOIN TETRIS<br />
-        WITH REAL<br />
-        SHA-256 PUZZLES.
+        TETRIS MEETS<br />
+        BITCOIN MINING.
       </h1>
 
       <p class="hero-copy">
-        TetroHash Deep turns Bitcoin proof-of-work into a playable arcade system.
-        Clear transaction rows, build block data, mine real SHA-256 hashes,
-        complete a 15-level Bitcoin campaign, and earn in-game sats when you
-        win the full chain.
+        Clear rows, then tap Space to “mine” a block. No crypto wallet needed.
+        No setup. Just press Start and play through 15 short levels.
       </p>
 
       <div class="hero-actions">
-        <a class="button primary" href="#game">Play Bitcoin Tetris</a>
-        <a class="button secondary" href="#learning">View AI Layer</a>
+        <a class="button primary" href="#game">Start Playing</a>
       </div>
     </section>
 
-    <section id="about" class="article section-shell">
-      <h2>1. WHAT THIS GAME TEACHES</h2>
+    <section id="how" class="article section-shell friendly-steps">
+      <h2>How to play</h2>
 
-      <p>
-        TetroHash Deep teaches Bitcoin by turning core mining concepts into
-        gameplay. Falling blocks represent transaction pressure. Clearing rows
-        builds block data. The SHA-256 puzzle teaches how miners change nonce
-        values until a hash meets a difficulty target.
-      </p>
+      <ol class="steps-list">
+        <li><strong>Stack blocks</strong> with the arrow keys (or touch buttons).</li>
+        <li><strong>Clear a row</strong> to unlock the mining step.</li>
+        <li><strong>Press Space</strong> to search for a winning hash.</li>
+        <li><strong>Beat all 15 levels</strong> to earn 5 bonus sats saved on your device.</li>
+      </ol>
 
-      <h2>2. WHY BITCOIN TETRIS WORKS</h2>
-
-      <p>
-        Bitcoin can feel abstract because the important parts are invisible:
-        hashes, nonces, previous hashes, block construction, and mining
-        difficulty. This game makes those ideas visible. You play the pressure,
-        then you mine the result.
-      </p>
-
-      <h2>3. THE CORE LOOP</h2>
-
-      <p>
-        First, play Bitcoin Tetris by moving transaction blocks into the grid.
-        When you clear a row, the game creates block-like data from your score,
-        cleared lines, transaction count, fees, reward, and previous hash. Then
-        the game switches into a SHA-256 mining puzzle where you search for a
-        valid hash.
-      </p>
-
-      <h2>4. THE REAL SHA-256 LESSON</h2>
-
-      <p>
-        A SHA-256 hash is a digital fingerprint of input data. A tiny input
-        change creates a completely different hash. In this game, each nonce
-        change produces a new real SHA-256 hash in the browser. Your goal is to
-        find one that starts with the required number of leading zeros.
+      <p class="friendly-note">
+        Bonus sats are just for fun on this phone or computer — not real money yet.
       </p>
     </section>
 
     <section id="game" class="game-section section-shell">
       <div class="section-heading">
-        <p class="date-label">Playable Core</p>
-        <h2>BITCOIN TETRIS + SHA-256 PUZZLES</h2>
+        <p class="date-label">Ready when you are</p>
+        <h2>PLAY NOW</h2>
       </div>
 
       <div class="game-layout">
         <aside class="panel">
-          <h3>Mining Session</h3>
+          <h3>Your game</h3>
 
           <dl class="stat-list">
             <div>
@@ -121,33 +91,28 @@
             </div>
 
             <div>
-              <dt>Pressure</dt>
-              <dd id="pressure">Low</dd>
+              <dt>Board</dt>
+              <dd id="pressure">Calm</dd>
             </div>
 
             <div>
-              <dt>Model</dt>
-              <dd id="modelState">Calibrating</dd>
-            </div>
-
-            <div>
-              <dt>Blocks</dt>
+              <dt>Blocks done</dt>
               <dd id="blocksMined">0/15</dd>
             </div>
 
             <div>
-              <dt>SAT Bank</dt>
-              <dd id="satsBalance">0 sats</dd>
+              <dt>Bonus saved</dt>
+              <dd id="satsBalance">0</dd>
             </div>
 
             <div>
-              <dt>Run SATS</dt>
-              <dd id="runSats">0 sats</dd>
+              <dt>This run</dt>
+              <dd id="runSats">0</dd>
             </div>
           </dl>
 
-          <div class="progress-card" aria-label="Current level progress">
-            <span id="levelProgressText">0/1 rows to mining</span>
+          <div class="progress-card" aria-label="Progress to next mining step">
+            <span id="levelProgressText">0/1 rows cleared</span>
             <div class="progress-track">
               <span id="levelProgress"></span>
             </div>
@@ -158,7 +123,7 @@
           </button>
 
           <button id="resetGame" class="button secondary full">
-            Reset
+            New Game
           </button>
 
           <button id="pauseGame" class="button secondary full">
@@ -166,21 +131,25 @@
           </button>
 
           <button id="learningModeToggle" class="button secondary full">
-            AI Learning: On
+            Hints: On
           </button>
+
+          <p id="claimStatus" class="friendly-claim">
+            Win all 15 levels to save 5 bonus sats on this device.
+          </p>
         </aside>
 
-        <section class="game-card" aria-label="Bitcoin Tetris SHA-256 puzzle game board">
+        <section class="game-card" aria-label="TetroHash game board">
           <canvas id="gameCanvas" width="320" height="520"></canvas>
 
           <p id="gameMessage" class="game-message">
-            Press Start Game to play Bitcoin Tetris and unlock SHA-256 puzzles.
+            Press Start Game. Clear a row, then press Space to mine.
           </p>
 
           <div class="touch-controls" aria-label="Touch controls">
-            <button type="button" data-control="left">Left</button>
-            <button type="button" data-control="rotate">Rotate</button>
-            <button type="button" data-control="right">Right</button>
+            <button type="button" data-control="left">←</button>
+            <button type="button" data-control="rotate">↻</button>
+            <button type="button" data-control="right">→</button>
             <button type="button" data-control="drop">Drop</button>
             <button type="button" data-control="mine">Mine</button>
             <button type="button" data-control="pause">Pause</button>
@@ -191,177 +160,44 @@
           <h3>Controls</h3>
 
           <ul class="control-list">
-            <li><strong>← / →</strong> Move transaction block</li>
-            <li><strong>↓</strong> Drop faster</li>
-            <li><strong>Space</strong> Hard drop / mine hash</li>
-            <li><strong>↑ / R</strong> Rotate block</li>
-            <li><strong>P</strong> Pause / resume tutor review</li>
-            <li><strong>Esc</strong> Reset run</li>
-          </ul>
-
-          <h3>Learning Signals</h3>
-
-          <ul class="signal-list">
-            <li id="signalSpeed">Speed: waiting</li>
-            <li id="signalMistakes">Mistakes: 0</li>
-            <li id="signalSurvival">Survival: 0s</li>
-            <li id="signalAdapt">AI pressure: idle</li>
+            <li><strong>← / →</strong> Move</li>
+            <li><strong>↓</strong> Soft drop</li>
+            <li><strong>Space</strong> Drop fast / mine</li>
+            <li><strong>↑ / R</strong> Rotate</li>
+            <li><strong>P</strong> Pause</li>
+            <li><strong>Esc</strong> New game</li>
           </ul>
 
           <div class="mini-panel ai-panel">
-            <h3>AI Learning Mode</h3>
-            <strong id="aiModeState">Tutor On</strong>
+            <h3>Hint</h3>
+            <strong id="aiModeState">Hints on</strong>
             <p id="aiTutorMessage">
-              The local tutor watches your speed, mistakes, survival, row clears,
-              and mining attempts to explain the next move.
+              Clear one row to start mining. Hints will guide you from there.
             </p>
-            <small id="learningPath">Beginner Mining Path</small>
+            <small id="learningPath">Just getting started</small>
           </div>
 
           <div class="mini-panel">
-            <h3>Current Mission</h3>
+            <h3>Your mission</h3>
             <strong id="missionTitle">1. Genesis Block</strong>
-            <p id="missionLesson">Every chain starts with a first block and a previous hash anchor.</p>
-            <small id="missionGoal">Clear 1 row, then mine your first valid training block.</small>
+            <p id="missionLesson">Every Bitcoin chain starts with a first block.</p>
+            <small id="missionGoal">Clear 1 row, then press Space to mine.</small>
           </div>
 
           <div class="mini-panel">
-            <h3>Block Explorer</h3>
-            <dl class="compact-list">
-              <div>
-                <dt>Height</dt>
-                <dd id="blockHeight">840,000</dd>
-              </div>
-
-              <div>
-                <dt>TX</dt>
-                <dd id="transactionCount">--</dd>
-              </div>
-
-              <div>
-                <dt>Fee Rate</dt>
-                <dd id="feeRate">--</dd>
-              </div>
-
-              <div>
-                <dt>Hash</dt>
-                <dd id="hashPreview">waiting</dd>
-              </div>
-            </dl>
-          </div>
-
-          <div class="mini-panel">
-            <h3>Achievements</h3>
+            <h3>Badges</h3>
             <ul id="achievementList" class="achievement-list">
-              <li>No badges yet</li>
+              <li>No badges yet — keep playing!</li>
             </ul>
           </div>
-
-          <div class="mini-panel run-report">
-            <h3>Run Report</h3>
-            <p id="runReport">Start a run to build your mining report.</p>
-          </div>
-
-          <div class="mini-panel claim-panel">
-            <h3>Reward Claim</h3>
-            <p id="claimStatus">
-              In-game sats are tracked locally. Real Lightning withdrawal needs
-              backend validation before launch.
-            </p>
-          </div>
         </aside>
-      </div>
-    </section>
-
-    <section id="learning" class="article section-shell">
-      <h2>5. WHAT THE PLAYER LEARNS</h2>
-
-      <p>
-            The player learns that mining is not guessing a magic answer. Mining is
-            repeated search across a 15-level campaign. You build data, change
-            the nonce, run SHA-256, and check whether the result satisfies the
-            target. If it does not, you try again.
-      </p>
-
-      <h2>6. MACHINE-LEARNING AI LAYER</h2>
-
-      <p>
-        The current AI Learning Mode is a local adaptive tutor. It tracks
-        movement speed, mistakes, survival time, score growth, line clears, and
-        mining attempts. The engine uses those signals to adjust pressure,
-        explain what is happening, recommend the next learning path, and help
-        players understand each Bitcoin concept while they play.
-      </p>
-
-      <h2>7. WHY THIS IS NOT JUST DECORATION</h2>
-
-      <p>
-        AI only matters if it has a real job. Here, the job is to make the game
-        teach better. If the player improves quickly, the game increases
-        pressure. If the player struggles, the game slows the curve. Later, a
-        backend model can validate rewards, personalize lesson sequencing, and
-        support real Lightning withdrawals safely.
-      </p>
-
-      <h2>8. SOUND EFFECTS</h2>
-
-      <p>
-        Sound gives the game feedback: movement, rotation, drops, row clears,
-        mining attempts, valid blocks, level changes, and game over events. This
-        makes the Bitcoin concepts easier to feel instead of only read.
-      </p>
-    </section>
-
-    <section id="roadmap" class="roadmap section-shell">
-      <h2>ROADMAP</h2>
-
-      <div class="cards">
-        <article class="road-card">
-          <span>01</span>
-          <h3>15-Level Campaign</h3>
-          <p>
-            Named Bitcoin missions teach genesis blocks, mempools, fees,
-            confirmations, halvings, mining pools, and final settlement.
-          </p>
-        </article>
-
-        <article class="road-card">
-          <span>02</span>
-          <h3>SHA-256 Boss Rounds</h3>
-          <p>
-            Real browser SHA-256 hashing powers nonce attempts, leading-zero
-            targets, boss rounds, and chained previous hashes.
-          </p>
-        </article>
-
-        <article class="road-card">
-          <span>03</span>
-          <h3>In-Game SAT Rewards</h3>
-          <p>
-            A full campaign win awards 5 in-game sats, tracks reward history,
-            and prepares the product for future Lightning validation.
-          </p>
-        </article>
-
-        <article class="road-card">
-          <span>04</span>
-          <h3>Player UX Layer</h3>
-          <p>
-            Mission cards, mempool pressure, achievements, block explorer data,
-            touch controls, and run reports make each session easier to follow.
-          </p>
-        </article>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <a href="#top">↑ Back to top</a>
-
-    <p>
-      TetroHash Deep — Bitcoin Tetris, real SHA-256 puzzles, adaptive AI, and sound.
-    </p>
-
+    <p>TetroHash — play Tetris, learn Bitcoin, have fun.</p>
     <div class="shape shape-one"></div>
     <div class="shape shape-two"></div>
     <div class="shape shape-three"></div>

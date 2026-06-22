@@ -673,3 +673,32 @@ main,
     width: min(100% - 28px, 920px);
   }
 }
+
+.friendly-steps {
+  max-width: 42rem;
+}
+
+.steps-list {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.steps-list li + li {
+  margin-top: 0.65rem;
+}
+
+.friendly-note,
+.friendly-claim {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.friendly-claim {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--faint);
+}
