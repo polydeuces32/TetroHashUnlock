@@ -44,8 +44,8 @@ const htmlContent = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   'id="gameCanvas"',
   'id="startGame"',
   'id="learningModeToggle"',
-  'src="./learning.js"',
-  'src="./game.js"',
+  'src="./learning.js?v=4"',
+  'src="./game.js?v=4"',
 ].forEach((snippet) => assert(htmlContent.includes(snippet), `index.html contains: ${snippet}`));
 
 console.log("\nJavaScript structure");

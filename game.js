@@ -37,8 +37,10 @@ const resetButton = document.getElementById("resetGame");
 const pauseButton = document.getElementById("pauseGame");
 const learningModeButton = document.getElementById("learningModeToggle");
 
-const learning = new window.TetroHashLearningEngine();
-const sound = new window.TetroHashSoundEngine();
+const learning = window.TetroHashLearningEngine
+  ? new window.TetroHashLearningEngine()
+  : null;
+const sound = window.TetroHashSoundEngine ? new window.TetroHashSoundEngine() : null;
 
 const COLS = 10;
 const ROWS = 16;
@@ -470,6 +472,8 @@ function unlockAchievement(id) {
 }
 
 function updateDifficulty() {
+  if (!learning) return;
+
   state.level = getLevelByBlocksMined();
 
   const level = getCurrentLevel();
@@ -1167,49 +1171,69 @@ function toggleLearningMode() {
   draw();
 }
 
+function showGameMessage(text) {
+  if (gameMessageEl) gameMessageEl.textContent = text;
+}
+
 function startGame() {
-  sound.boot();
+  if (!canvas || !ctx) {
+    showGameMessage("Game board failed to load. Please refresh the page.");
+    return;
+  }
 
-  cancelAnimationFrame(state.animationId);
+  try {
+    if (!learning || !sound) {
+      showGameMessage("Game files failed to load. Please refresh the page.");
+      return;
+    }
 
-  state.running = true;
-  state.won = false;
-  state.paused = false;
-  state.mode = "tetris";
-  state.grid = createGrid();
-  state.piece = null;
-  state.score = 0;
-  state.level = 1;
-  state.lines = 0;
-  state.linesSinceMine = 0;
-  state.blocksMined = 0;
-  state.blockHeight = 840000;
-  state.transactionCount = 0;
-  state.feeRate = 0;
-  state.combo = 0;
-  state.bestCombo = 0;
-  state.runSats = 0;
-  state.nonce = 0;
-  state.attempts = 0;
-  state.targetZeros = 2;
-  state.targetPrefix = "00";
-  state.currentHash = "";
-  state.recentHashes = [];
-  state.previousHash = GENESIS_PREVIOUS_HASH;
-  state.lastTime = 0;
-  state.dropCounter = 0;
-  state.miningBusy = false;
-  state.levelIntroUntil = Date.now() + 1200;
-  state.report = `Today's goal: finish ${dailyTarget} blocks if you can. Win the full game for ${WIN_SATS_REWARD} bonus sats.`;
+    sound.boot();
 
-  learning.startSession();
-  updateDifficulty();
-  spawnPiece();
+    cancelAnimationFrame(state.animationId);
 
-  gameMessageEl.textContent =
-    "Go! Use arrow keys or touch buttons. Clear a row, then press Space to mine.";
+    state.running = true;
+    state.won = false;
+    state.paused = false;
+    state.mode = "tetris";
+    state.grid = createGrid();
+    state.piece = null;
+    state.score = 0;
+    state.level = 1;
+    state.lines = 0;
+    state.linesSinceMine = 0;
+    state.blocksMined = 0;
+    state.blockHeight = 840000;
+    state.transactionCount = 0;
+    state.feeRate = 0;
+    state.combo = 0;
+    state.bestCombo = 0;
+    state.runSats = 0;
+    state.nonce = 0;
+    state.attempts = 0;
+    state.targetZeros = 2;
+    state.targetPrefix = "00";
+    state.currentHash = "";
+    state.recentHashes = [];
+    state.previousHash = GENESIS_PREVIOUS_HASH;
+    state.lastTime = 0;
+    state.dropCounter = 0;
+    state.miningBusy = false;
+    state.levelIntroUntil = Date.now() + 1200;
+    state.report = `Today's goal: finish ${dailyTarget} blocks if you can. Win the full game for ${WIN_SATS_REWARD} bonus sats.`;
 
-  state.animationId = requestAnimationFrame(update);
+    learning.startSession();
+    updateDifficulty();
+    spawnPiece();
+
+    showGameMessage("Go! Use arrow keys or touch buttons. Clear a row, then press Space to mine.");
+
+    state.animationId = requestAnimationFrame(update);
+    draw();
+  } catch (error) {
+    console.error("TetroHash start failed:", error);
+    state.running = false;
+    showGameMessage("Could not start the game. Please refresh and try again.");
+  }
 }
 
 function resetGame() {
@@ -1324,48 +1348,66 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-document.querySelectorAll("[data-control]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const control = button.dataset.control;
-
-    if (control === "left") movePiece(-1);
-    if (control === "right") movePiece(1);
-    if (control === "rotate") rotatePiece();
-    if (control === "drop") hardDrop();
-    if (control === "pause") togglePause();
-    if (control === "mine") {
-      if (state.mode === "mining") {
-        mineBatch();
-      } else {
-        hardDrop();
-      }
-    }
-  });
-});
-
 function bootGame() {
-  if (!canvas || !ctx) {
-    if (gameMessageEl) {
-      gameMessageEl.textContent = "Game could not load. Please refresh the page.";
-    }
-    return;
-  }
+  const attach = (id, handler) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("click", (event) => {
+      event.preventDefault();
+      handler();
+    });
+  };
 
-  startButton?.addEventListener("click", () => {
+  attach("startGame", () => {
     startGame();
     canvas?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
-  resetButton?.addEventListener("click", resetGame);
-  pauseButton?.addEventListener("click", togglePause);
-  learningModeButton?.addEventListener("click", toggleLearningMode);
 
-  document.getElementById("heroStart")?.addEventListener("click", () => {
+  attach("resetGame", resetGame);
+  attach("pauseGame", togglePause);
+  attach("learningModeToggle", toggleLearningMode);
+
+  attach("heroStart", () => {
     startGame();
     document.getElementById("game")?.scrollIntoView({ behavior: "smooth", block: "start" });
     canvas?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
+  document.querySelectorAll("[data-control]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      const control = button.dataset.control;
+
+      if (control === "left") movePiece(-1);
+      if (control === "right") movePiece(1);
+      if (control === "rotate") rotatePiece();
+      if (control === "drop") hardDrop();
+      if (control === "pause") togglePause();
+      if (control === "mine") {
+        if (state.mode === "mining") {
+          mineBatch();
+        } else {
+          hardDrop();
+        }
+      }
+    });
+  });
+
+  if (!canvas || !ctx) {
+    showGameMessage("Game board failed to load. Please refresh the page.");
+    return;
+  }
+
+  if (!window.TetroHashLearningEngine || !window.TetroHashSoundEngine || !learning || !sound) {
+    showGameMessage("Game files failed to load. Please refresh the page.");
+    return;
+  }
+
   resetGame();
 }
 
-bootGame();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootGame);
+} else {
+  bootGame();
+}
