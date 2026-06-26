@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "canisters": {
+    "tetrohash_backend": {
+      "type": "motoko",
+      "main": "src/tetrohash_backend/main.mo"
+    },
+    "tetrohash_frontend": {
+      "type": "assets",
+      "dependencies": ["tetrohash_backend"],
+      "source": ["."]
+    }
+  },
+  "output_env_file": ".env"
+}
