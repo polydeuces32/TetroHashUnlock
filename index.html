@@ -113,6 +113,10 @@
             </div>
           </dl>
 
+          <div class="progress-card" aria-label="ICP backend status">
+            <span id="icpStatus">ICP backend not checked yet.</span>
+          </div>
+
           <div class="progress-card" aria-label="Progress to next mining step">
             <span id="levelProgressText">0/1 rows cleared</span>
             <div class="progress-track">
@@ -205,8 +209,10 @@
     <div class="shape shape-three"></div>
   </footer>
 
+  <script src="./icp-config.js?v=1"></script>
+  <script type="module" src="./icp.js?v=1"></script>
   <script src="./learning.js?v=4"></script>
   <script src="./sound.js?v=4"></script>
-  <script src="./game.js?v=4"></script>
+  <script src="./game.js?v=5"></script>
 </body>
 </html>
