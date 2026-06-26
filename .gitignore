@@ -26,6 +26,10 @@ venv/
 env/
 ENV/
 
+# Internet Computer
+.dfx/
+.env
+
 # IDE
 .vscode/
 .idea/
