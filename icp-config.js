@@ -9,6 +9,6 @@
 // Replace the same value with the ICP mainnet backend canister ID.
 
 window.TETROHASH_ICP_CONFIG = {
-  backendCanisterId: "REPLACE_WITH_TETROHASH_BACKEND_CANISTER_ID",
+  backendCanisterId: "uxrrr-q7777-77774-qaaaq-cai",
   localHost: "http://127.0.0.1:4943",
 };

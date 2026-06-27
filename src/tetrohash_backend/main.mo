@@ -1,9 +1,9 @@
 import Principal "mo:base/Principal";
 
-actor TetroHashBackend {
-  stable var totalPlays : Nat = 0;
-  stable var anonymousPlays : Nat = 0;
-  stable var authenticatedPlays : Nat = 0;
+persistent actor TetroHashBackend {
+  var totalPlays : Nat = 0;
+  var anonymousPlays : Nat = 0;
+  var authenticatedPlays : Nat = 0;
 
   public shared ({ caller }) func record_play() : async Nat {
     totalPlays += 1;
