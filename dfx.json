@@ -3,12 +3,13 @@
   "canisters": {
     "tetrohash_backend": {
       "type": "motoko",
-      "main": "src/tetrohash_backend/main.mo"
+      "main": "src/tetrohash_backend/main.mo",
+      "candid": "src/tetrohash_backend/tetrohash_backend.did"
     },
     "tetrohash_frontend": {
       "type": "assets",
       "dependencies": ["tetrohash_backend"],
-      "source": ["."]
+      "source": ["dist"]
     }
   },
   "output_env_file": ".env"
