@@ -1,0 +1,26 @@
+type PlayerProfile = record {
+  owner : principal;
+  username : opt text;
+  highScore : nat;
+  highestLevel : nat;
+  gamesPlayed : nat;
+  totalLinesCleared : nat;
+  achievements : vec text;
+};
+
+type PlayStats = record {
+  totalPlays : nat;
+  anonymousPlays : nat;
+  authenticatedPlays : nat;
+};
+
+service : {
+  whoami : () -> (principal) query;
+  record_play : () -> (nat);
+  get_total_plays : () -> (nat) query;
+  get_play_stats : () -> (PlayStats) query;
+  get_my_profile : () -> (opt PlayerProfile) query;
+  upsert_my_profile : (opt text) -> (opt PlayerProfile);
+  update_my_score : (nat, nat, nat, nat, vec text) -> (opt PlayerProfile);
+  delete_my_profile : () -> (bool);
+};
