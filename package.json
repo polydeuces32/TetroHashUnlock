@@ -1,0 +1,17 @@
+{
+  "name": "tetrohashunlock",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node --check game.js && node --check learning.js && node --check sound.js && node --check icp.js",
+    "test": "npm run check"
+  },
+  "dependencies": {
+    "@dfinity/agent": "2.4.1",
+    "@dfinity/auth-client": "2.4.1",
+    "@dfinity/principal": "2.4.1",
+    "esbuild": "0.25.5"
+  }
+}
