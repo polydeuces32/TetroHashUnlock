@@ -46,6 +46,13 @@ Backend methods:
 
 Local validation passed on macOS using `dfx` version `0.32.0`.
 
+Verified browser-to-canister status on the local replica:
+
+- The ICP-hosted frontend loads from `http://u6s2n-gx777-77774-qaaba-cai.localhost:4943/`.
+- `refreshStats()` returns live play counts from the backend canister.
+- `recordPlay()` successfully increments backend stats from the browser.
+- The frontend uses `.localhost` host detection so the local replica path works from the canister origin.
+
 Local canisters created:
 
 ```text

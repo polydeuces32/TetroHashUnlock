@@ -19,6 +19,7 @@ Current validated status:
 - `tetrohash_frontend` asset canister builds and deploys locally.
 - Backend state recording works through `dfx canister call`.
 - `record_play()` updates `get_play_stats()` correctly.
+- Browser-to-canister play recording works from the ICP-hosted frontend on the local replica.
 
 Validated local canisters:
 

@@ -1225,6 +1225,12 @@ function startGame() {
     updateDifficulty();
     spawnPiece();
 
+    if (window.TetroHashICP?.recordPlay) {
+      window.TetroHashICP.recordPlay().catch((error) => {
+        console.warn("ICP play recording failed:", error);
+      });
+    }
+
     showGameMessage("Go! Use arrow keys or touch buttons. Clear a row, then press Space to mine.");
 
     state.animationId = requestAnimationFrame(update);

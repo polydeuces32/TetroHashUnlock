@@ -21,7 +21,13 @@ const idlFactory = ({ IDL }) => {
 };
 
 function isLikelyLocalReplica() {
-  return ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const hostname = window.location.hostname;
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname.endsWith(".localhost")
+  );
 }
 
 function getStatusElement() {
