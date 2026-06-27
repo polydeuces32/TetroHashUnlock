@@ -1,0 +1,39 @@
+name: ICP CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - icp-production-integration
+      - icp-migration
+      - tetrohash-deep-rebuild
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --ignore-scripts
+      - run: npm run check
+      - run: npm run build
+      - name: Verify required build artifacts
+        run: |
+          test -f dist/index.html
+          test -f dist/icp.js
+          test -f dist/game.js
+
+  backend-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify backend contract files
+        run: |
+          test -f src/tetrohash_backend/main.mo
+          test -f src/tetrohash_backend/tetrohash_backend.did
+          grep -q 'tetrohash_backend.did' dfx.json
