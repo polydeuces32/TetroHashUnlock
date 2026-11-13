@@ -16,6 +16,8 @@ const levelProgressTextEl = document.getElementById("levelProgressText");
 const missionTitleEl = document.getElementById("missionTitle");
 const missionLessonEl = document.getElementById("missionLesson");
 const missionGoalEl = document.getElementById("missionGoal");
+const bestScoreEl = document.getElementById("bestScore");
+const highScoreListEl = document.getElementById("highScoreList");
 const achievementListEl = document.getElementById("achievementList");
 const blockHeightEl = document.getElementById("blockHeight");
 const transactionCountEl = document.getElementById("transactionCount");
@@ -41,6 +43,7 @@ const learning = window.TetroHashLearningEngine
   ? new window.TetroHashLearningEngine()
   : null;
 const sound = window.TetroHashSoundEngine ? new window.TetroHashSoundEngine() : null;
+const Engine = window.TetroHashEngine || null;
 
 const COLS = 10;
 const ROWS = 16;
@@ -48,6 +51,13 @@ const CELL = 32;
 const WIN_SATS_REWARD = 5;
 const REWARD_STORAGE_KEY = "tetrohash_deep_rewards_v1";
 const GENESIS_PREVIOUS_HASH = "00000000000000000001a7f4b9d2c5e8";
+// STATIC SNAPSHOT, not live data. Displayed block heights in this game are a
+// simulation that starts here and counts up per mined level; they are NOT read
+// from the Bitcoin network. Value verified 2026-11-13 against
+// https://mempool.space/api/blocks/tip/height and https://blockstream.info/api/blocks/tip/height
+// (both returned 975723). Refresh by hand when needed.
+// Subsidy is 3.125 BTC until block 1,050,000 (next halving, roughly 2028).
+const BITCOIN_CHAIN_TIP_HEIGHT = 975723;
 
 const COLORS = ["#6ff7ff", "#ff75eb", "#f7ff28", "#a6ff6f", "#7a9cff"];
 
@@ -204,7 +214,7 @@ const LEVELS = [
   },
   {
     name: "Halving Pressure",
-    lesson: "The block subsidy falls over time, making fee strategy matter more.",
+    lesson: "Subsidy is 3.125 BTC per block now; it halves again at block 1,050,000 (~2028), so fees matter more.",
     goal: "Boss round: mine through reduced subsidy pressure.",
     linesToMine: 3,
     targetZeros: 3,
@@ -307,6 +317,8 @@ const todayKey = new Date().toISOString().slice(0, 10);
 const dailyTarget = 3 + (todayKey.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) % 4);
 
 let rewardProfile = loadRewardProfile();
+let highScores = Engine ? Engine.loadHighScores(safeStorage()) : [];
+let toast = { text: "", until: 0 };
 
 const state = {
   running: false,
@@ -321,11 +333,13 @@ const state = {
   lines: 0,
   linesSinceMine: 0,
   blocksMined: 0,
-  blockHeight: 840000,
+  blockHeight: BITCOIN_CHAIN_TIP_HEIGHT,
   transactionCount: 0,
   feeRate: 0,
   combo: 0,
   bestCombo: 0,
+  clearChain: 0,
+  runId: 0,
   runSats: 0,
   previousHash: GENESIS_PREVIOUS_HASH,
   nonce: 0,
@@ -344,6 +358,14 @@ const state = {
   report: "Press Start and clear your first row.",
 };
 
+function safeStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return { getItem: () => null, setItem: () => {} };
+  }
+}
+
 function loadRewardProfile() {
   const fallback = {
     satsBalance: 0,
@@ -356,24 +378,61 @@ function loadRewardProfile() {
   };
 
   try {
-    const stored = window.localStorage.getItem(REWARD_STORAGE_KEY);
+    const stored = safeStorage().getItem(REWARD_STORAGE_KEY);
     if (!stored) return fallback;
-
-    return {
-      ...fallback,
-      ...JSON.parse(stored),
-    };
+    const parsed = JSON.parse(stored);
+    return Engine ? Engine.normalizeProfile(parsed) : { ...fallback, ...parsed };
   } catch {
     return fallback;
   }
 }
 
 function saveRewardProfile() {
-  window.localStorage.setItem(REWARD_STORAGE_KEY, JSON.stringify(rewardProfile));
+  try {
+    safeStorage().setItem(REWARD_STORAGE_KEY, JSON.stringify(rewardProfile));
+  } catch {
+    // Storage full or blocked (private mode): the game keeps running.
+  }
+}
+
+function showToast(text, ms = 1400) {
+  toast = { text, until: Date.now() + ms };
+}
+
+function recordHighScore(won) {
+  if (!Engine) return 0;
+  const result = Engine.addHighScore(highScores, {
+    score: state.score,
+    blocks: state.blocksMined,
+    level: state.level,
+    bestCombo: state.bestCombo,
+    won,
+    date: new Date().toISOString(),
+  });
+  highScores = result.list;
+  Engine.saveHighScores(safeStorage(), highScores);
+  return result.rank;
+}
+
+function renderHighScores() {
+  if (bestScoreEl) bestScoreEl.textContent = Math.max(rewardProfile.bestScore, highScores[0]?.score || 0);
+  if (!highScoreListEl) return;
+  highScoreListEl.textContent = "";
+  if (!highScores.length) {
+    const li = document.createElement("li");
+    li.textContent = "No scores yet — finish a run!";
+    highScoreListEl.appendChild(li);
+    return;
+  }
+  highScores.slice(0, 5).forEach((entry) => {
+    const li = document.createElement("li");
+    li.textContent = `${entry.score} pts · ${entry.blocks}/${LEVELS.length} blocks${entry.won ? " · won" : ""}`;
+    highScoreListEl.appendChild(li);
+  });
 }
 
 function createGrid() {
-  return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+  return Engine.createGrid(ROWS, COLS);
 }
 
 function getCurrentLevel() {
@@ -555,6 +614,7 @@ function updateDifficulty() {
   }
 
   renderAchievements();
+  renderHighScores();
   if (runReportEl) runReportEl.textContent = state.report;
 }
 
@@ -563,7 +623,7 @@ function renderAchievements() {
 
   achievementListEl.innerHTML = "";
 
-  const unlocked = rewardProfile.achievements.slice(-5);
+  const unlocked = rewardProfile.achievements.filter((id) => Object.hasOwn(ACHIEVEMENTS, id)).slice(-5);
   if (unlocked.length === 0) {
     const empty = document.createElement("li");
     empty.textContent = "No badges yet — keep playing!";
@@ -815,24 +875,20 @@ function draw() {
   if (state.paused && !state.won) {
     drawPausedOverlay();
   }
+
+  drawToast();
+}
+
+function drawToast() {
+  // Mining screen is text-dense; the toast would cover its headings.
+  if (state.mode !== "tetris" || !toast.text || Date.now() > toast.until) return;
+  ctx.fillStyle = "rgba(2, 11, 20, 0.85)";
+  ctx.fillRect(18, 62, 284, 30);
+  drawText(toast.text, 28, 82, 12, "#f7ff28", "900");
 }
 
 function collides(piece, offsetX = 0, offsetY = 0, nextShape = null) {
-  const shape = nextShape || piece.shape;
-
-  for (let y = 0; y < shape.length; y += 1) {
-    for (let x = 0; x < shape[y].length; x += 1) {
-      if (!shape[y][x]) continue;
-
-      const nextX = piece.x + x + offsetX;
-      const nextY = piece.y + y + offsetY;
-
-      if (nextX < 0 || nextX >= COLS || nextY >= ROWS) return true;
-      if (nextY >= 0 && state.grid[nextY][nextX]) return true;
-    }
-  }
-
-  return false;
+  return Engine.collides(state.grid, piece, offsetX, offsetY, nextShape);
 }
 
 function mergePiece() {
@@ -851,16 +907,13 @@ function mergePiece() {
 }
 
 function clearLines() {
-  let cleared = 0;
+  const result = Engine.clearFullRows(state.grid);
+  const cleared = result.cleared;
+  state.grid = result.grid;
 
-  state.grid = state.grid.filter((row) => {
-    const full = row.every(Boolean);
-    if (full) cleared += 1;
-    return !full;
-  });
-
-  while (state.grid.length < ROWS) {
-    state.grid.unshift(Array(COLS).fill(null));
+  if (cleared === 0) {
+    state.clearChain = 0;
+    return;
   }
 
   if (cleared > 0) {
@@ -868,8 +921,11 @@ function clearLines() {
     state.lines += cleared;
     state.linesSinceMine += cleared;
 
-    const points = cleared * cleared * 140 + state.level * 25;
+    state.clearChain += 1;
+    const points = Engine.lineClearPoints(cleared, state.level) + Engine.chainBonus(state.clearChain);
     state.score += points;
+    const chainText = Engine.chainLabel(state.clearChain);
+    showToast(`+${points}${chainText ? ` · ${chainText}` : ""}`);
 
     sound.clear();
     learning.recordLineClear(cleared);
@@ -947,7 +1003,7 @@ function hardDrop() {
 }
 
 function rotateShape(shape) {
-  return shape[0].map((_, index) => shape.map((row) => row[index]).reverse());
+  return Engine.rotateShape(shape);
 }
 
 function rotatePiece() {
@@ -1019,6 +1075,7 @@ function completeVictory() {
 
   unlockAchievement("champion");
   saveRewardProfile();
+  recordHighScore(true);
   const summary = learning.completeSession(state.score);
   sound.validBlock();
 
@@ -1033,10 +1090,12 @@ function completeVictory() {
 
 function handleValidBlock(hash) {
   const completedLevel = getCurrentLevel();
-  const speedBonus = Math.max(0, 320 - state.attempts);
-  const bossBonus = completedLevel.boss ? 500 : 0;
-  const comboBonus = state.combo * 120;
-  const reward = completedLevel.reward + speedBonus + bossBonus + comboBonus;
+  const reward = Engine.blockReward({
+    baseReward: completedLevel.reward,
+    attempts: state.attempts,
+    boss: Boolean(completedLevel.boss),
+    combo: state.combo,
+  }).total;
 
   state.score += reward;
   state.previousHash = hash;
@@ -1045,6 +1104,9 @@ function handleValidBlock(hash) {
   state.combo += 1;
   state.bestCombo = Math.max(state.bestCombo, state.combo);
   state.linesSinceMine = 0;
+
+  const streak = Engine.comboLabel(state.combo);
+  showToast(`Block +${reward}${streak ? ` · ${streak}` : ""}`, 1800);
 
   sound.validBlock();
   learning.recordLineClear(1);
@@ -1064,7 +1126,7 @@ function handleValidBlock(hash) {
   saveRewardProfile();
 
   gameMessageEl.textContent =
-    `Block found! +${reward} points. Level ${state.blocksMined}/${LEVELS.length} done.`;
+    `Block found! +${reward} points${streak ? ` (${streak})` : ""}. Level ${state.blocksMined}/${LEVELS.length} done.`;
 
   if (state.blocksMined >= LEVELS.length) {
     completeVictory();
@@ -1086,15 +1148,22 @@ async function mineBatch() {
   if (!state.running || state.paused || state.mode !== "mining" || state.miningBusy) return;
 
   const level = getCurrentLevel();
+  const runId = state.runId;
   state.miningBusy = true;
 
   for (let attempt = 0; attempt < level.hashBatch; attempt += 1) {
     state.nonce += 1;
     state.attempts += 1;
 
-    const input = `${state.blockData}|nonce:${state.nonce}`;
+    const input = Engine.buildHashInput(state.blockData, state.nonce);
     const hash = await sha256Hex(input);
-    const valid = hash.startsWith(state.targetPrefix);
+
+    // The run may have been reset/restarted/ended/paused while hashing was in flight.
+    if (runId !== state.runId || !state.running || state.paused || state.mode !== "mining") {
+      state.miningBusy = false;
+      return;
+    }
+    const valid = Engine.hashMeetsTarget(hash, state.targetZeros);
 
     state.currentHash = hash;
     state.recentHashes.unshift({
@@ -1182,7 +1251,7 @@ function startGame() {
   }
 
   try {
-    if (!learning || !sound) {
+    if (!learning || !sound || !Engine) {
       showGameMessage("Game files failed to load. Please refresh the page.");
       return;
     }
@@ -1191,6 +1260,7 @@ function startGame() {
 
     cancelAnimationFrame(state.animationId);
 
+    state.runId += 1;
     state.running = true;
     state.won = false;
     state.paused = false;
@@ -1202,11 +1272,12 @@ function startGame() {
     state.lines = 0;
     state.linesSinceMine = 0;
     state.blocksMined = 0;
-    state.blockHeight = 840000;
+    state.blockHeight = BITCOIN_CHAIN_TIP_HEIGHT;
     state.transactionCount = 0;
     state.feeRate = 0;
     state.combo = 0;
     state.bestCombo = 0;
+    state.clearChain = 0;
     state.runSats = 0;
     state.nonce = 0;
     state.attempts = 0;
@@ -1238,6 +1309,7 @@ function startGame() {
 
 function resetGame() {
   cancelAnimationFrame(state.animationId);
+  state.runId += 1;
 
   state.running = false;
   state.won = false;
@@ -1250,11 +1322,12 @@ function resetGame() {
   state.lines = 0;
   state.linesSinceMine = 0;
   state.blocksMined = 0;
-  state.blockHeight = 840000;
+  state.blockHeight = BITCOIN_CHAIN_TIP_HEIGHT;
   state.transactionCount = 0;
   state.feeRate = 0;
   state.combo = 0;
   state.bestCombo = 0;
+  state.clearChain = 0;
   state.runSats = 0;
   state.nonce = 0;
   state.attempts = 0;
@@ -1278,6 +1351,7 @@ function resetGame() {
 }
 
 function endGame() {
+  if (!state.running) return;
   state.running = false;
   state.won = false;
   state.paused = false;
@@ -1288,6 +1362,7 @@ function endGame() {
   rewardProfile.bestScore = Math.max(rewardProfile.bestScore, state.score);
   rewardProfile.bestLevel = Math.max(rewardProfile.bestLevel, state.blocksMined);
   saveRewardProfile();
+  const rank = recordHighScore(false);
 
   state.report =
     `Run ended: level ${state.level}, ${state.blocksMined} blocks mined, score ${state.score}, best ${summary.bestScore}. ${learning.getRunLesson(summary, state.blocksMined, false)}`;
@@ -1296,7 +1371,7 @@ function endGame() {
   updateDifficulty();
 
   gameMessageEl.textContent =
-    `Game over. Best score: ${summary.bestScore}. Try again!`;
+    `Game over. Best score: ${summary.bestScore}.${rank ? ` New #${rank} on your high-score list!` : ""} Try again!`;
 
   draw();
 }
@@ -1398,7 +1473,7 @@ function bootGame() {
     return;
   }
 
-  if (!window.TetroHashLearningEngine || !window.TetroHashSoundEngine || !learning || !sound) {
+  if (!window.TetroHashLearningEngine || !window.TetroHashSoundEngine || !learning || !sound || !Engine) {
     showGameMessage("Game files failed to load. Please refresh the page.");
     return;
   }

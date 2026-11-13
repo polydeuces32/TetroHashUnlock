@@ -42,10 +42,20 @@ python3 -m http.server 8000
 | File | Purpose |
 |------|---------|
 | `index.html` | Game page |
-| `game.js` | Tetris + mining engine |
+| `engine.js` | Pure gameplay logic: scoring, board rules, high scores (unit-tested) |
+| `game.js` | Rendering, input, game loop |
 | `learning.js` | Hints and difficulty |
 | `sound.js` | Sound effects |
 | `styles.css` | UI styling |
+
+## Tests
+
+```bash
+node scripts/test_engine.js    # engine unit tests
+node scripts/test_unified.js   # file/structure checks
+```
+
+Mining here is an educational simulation: real SHA-256, but a tiny leading-zero target. It is not connected to the Bitcoin network.
 
 ## Deploy
 

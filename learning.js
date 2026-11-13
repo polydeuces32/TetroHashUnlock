@@ -42,7 +42,11 @@ class TetroHashLearningEngine {
   }
 
   saveProfile() {
-    window.localStorage.setItem(this.storageKey, JSON.stringify(this.profile));
+    try {
+      window.localStorage.setItem(this.storageKey, JSON.stringify(this.profile));
+    } catch {
+      // Storage full or blocked (private mode): keep playing without persistence.
+    }
   }
 
   startSession() {

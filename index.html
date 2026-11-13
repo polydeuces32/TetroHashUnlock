@@ -103,6 +103,11 @@
             </div>
 
             <div>
+              <dt>Best score</dt>
+              <dd id="bestScore">0</dd>
+            </div>
+
+            <div>
               <dt>Bonus saved</dt>
               <dd id="satsBalance">0</dd>
             </div>
@@ -142,9 +147,9 @@
         </aside>
 
         <section class="game-card" aria-label="TetroHash game board">
-          <canvas id="gameCanvas" width="320" height="520"></canvas>
+          <canvas id="gameCanvas" width="320" height="520" role="img" aria-label="TetroHash game board"></canvas>
 
-          <p id="gameMessage" class="game-message">
+          <p id="gameMessage" class="game-message" role="status" aria-live="polite">
             Press Start Game. Clear a row, then press Space to mine.
           </p>
 
@@ -187,6 +192,13 @@
           </div>
 
           <div class="mini-panel">
+            <h3>High scores</h3>
+            <ol id="highScoreList" class="achievement-list">
+              <li>No scores yet — finish a run!</li>
+            </ol>
+          </div>
+
+          <div class="mini-panel">
             <h3>Badges</h3>
             <ul id="achievementList" class="achievement-list">
               <li>No badges yet — keep playing!</li>
@@ -207,6 +219,7 @@
 
   <script src="./learning.js?v=4"></script>
   <script src="./sound.js?v=4"></script>
+  <script src="./engine.js?v=1"></script>
   <script src="./game.js?v=4"></script>
 </body>
 </html>
