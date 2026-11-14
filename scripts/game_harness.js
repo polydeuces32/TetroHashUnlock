@@ -15,7 +15,10 @@ function makeEl(id) {
     classList: { add() {}, remove() {}, toggle() {} },
     addEventListener(type, fn) { (listeners[type] ||= []).push(fn); },
     appendChild(c) { this.children.push(c); return c; },
-    scrollIntoView() {}, focus() {}, setAttribute() {}, setPointerCapture() {},
+    scrollIntoView() {}, focus() {}, setPointerCapture() {},
+    attrs: {},
+    setAttribute(k, v) { this.attrs[k] = v; },
+    getAttribute(k) { return this.attrs[k]; },
     emit(type, extra = {}) { (listeners[type] || []).forEach((fn) => fn({ preventDefault() {}, ...extra })); },
     listeners,
   };
@@ -27,11 +30,16 @@ function makeEl(id) {
   return el;
 }
 
-function makeCtx() {
+function makeCtx(log) {
   const noop = () => {};
   return new Proxy({}, {
     get(t, k) {
       if (k === "measureText") return (s) => ({ width: String(s).length * 6 });
+      if (k === "fillText") return (text, x, y) => { log.texts.push(String(text)); };
+      if (k === "fillRect") return (...a) => { log.rects.push(a); };
+      if (k === "drawImage") return (...a) => { log.images += 1; log.imageArgs.push(a.slice(1)); };
+      if (k === "createLinearGradient") return () => { log.gradients += 1; return { addColorStop: noop }; };
+      if (k === "setTransform") return (...a) => { log.transforms.push(a); };
       if (k === "createLinearGradient" || k === "createRadialGradient") return () => ({ addColorStop: noop });
       return k in t ? t[k] : noop;
     },
@@ -40,11 +48,12 @@ function makeCtx() {
 }
 
 // opts: storage (initial), withPointer (define PointerEvent), buttons [{control}]
-function boot({ storage = {}, withPointer = false, buttons = [] } = {}) {
+function boot({ storage = {}, withPointer = false, buttons = [], dpr, reduced = false } = {}) {
+  const draws = { texts: [], rects: [], transforms: [], images: 0, imageArgs: [], gradients: 0, offscreen: 0 };
   const html = read("index.html");
   const els = {};
   for (const m of html.matchAll(/id="([A-Za-z]+)"/g)) els[m[1]] = makeEl(m[1]);
-  els.gameCanvas.getContext = () => makeCtx();
+  els.gameCanvas.getContext = () => makeCtx(draws);
 
   const store = { ...storage };
   const localStorage = {
@@ -57,8 +66,13 @@ function boot({ storage = {}, withPointer = false, buttons = [] } = {}) {
   const btnEls = buttons.map((control) => { const b = makeEl("btn-" + control); b.dataset.control = control; return b; });
   const document = {
     readyState: "complete",
+    visibilityState: "visible",
     getElementById: (id) => els[id] || null,
-    createElement: (tag) => makeEl(tag),
+    createElement: (tag) => {
+      const el = makeEl(tag);
+      if (tag === "canvas") { el.getContext = () => makeCtx(draws); draws.offscreen += 1; }
+      return el;
+    },
     querySelectorAll: (sel) => (sel === "[data-control]" ? btnEls : []),
     addEventListener(type, fn) { (docListeners[type] ||= []).push(fn); },
   };
@@ -69,6 +83,8 @@ function boot({ storage = {}, withPointer = false, buttons = [] } = {}) {
     setTimeout, clearTimeout,
   };
   if (withPointer) window.PointerEvent = function PointerEvent() {};
+  if (dpr !== undefined) window.devicePixelRatio = dpr;
+  window.matchMedia = (q) => ({ matches: reduced && /reduce/.test(q) });
   const ctx = vm.createContext({
     window, document, localStorage, console, crypto: crypto.webcrypto, TextEncoder, Date, Math, Promise,
     setTimeout, clearTimeout, setInterval, clearInterval,
@@ -88,8 +104,10 @@ function boot({ storage = {}, withPointer = false, buttons = [] } = {}) {
   };
   const click = (id) => els[id].emit("click", { detail: 1 });
   const fireWindow = (type) => (winListeners[type] || []).forEach((fn) => fn({}));
+  const setVisibility = (v) => { document.visibilityState = v; (docListeners.visibilitychange || []).forEach((fn) => fn({})); };
+  const clearDraws = () => { draws.texts.length = 0; draws.rects.length = 0; draws.transforms.length = 0; draws.images = 0; draws.imageArgs.length = 0; draws.gradients = 0; };
   const progressOf = () => JSON.parse(store["tetrohash_progress_v2"] || "null");
-  return { run, key, click, els, store, rafQueue, fireWindow, btnEls, progressOf };
+  return { run, key, click, els, store, rafQueue, fireWindow, btnEls, progressOf, draws, clearDraws, setVisibility };
 }
 
 // Mine one real block via the game's own code path with a deterministic hash.

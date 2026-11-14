@@ -51,12 +51,18 @@ python3 -m http.server 8000
 ## Tests
 
 ```bash
+node scripts/run_tests.js      # all syntax checks + every suite (what CI runs)
 node scripts/test_engine.js    # engine unit tests
 node scripts/test_unified.js   # file/structure checks
 node scripts/test_mining.js    # SHA-256, Bitcoin header math, cancellable miner
 node scripts/test_mining_ui.js # Mining Lab UI (stub DOM)
 node scripts/test_game_integration.js
+node scripts/test_progress.js        # progression rules and storage recovery
+node scripts/test_game_progress.js   # progression wired into the game
+node scripts/test_game_render.js     # rendering, 15-level victory, lifecycle
 ```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs `node scripts/run_tests.js` on Node 20 and 22 for every push and pull request. There are no dependencies to install. Browser behavior (real Web Worker, touch, layout) is checked by hand; CI covers the Node suites only.
 
 ## Mining Lab
 

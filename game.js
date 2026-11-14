@@ -55,6 +55,8 @@ const Progress = window.TetroHashProgress || null;
 const COLS = 10;
 const ROWS = 16;
 const CELL = 32;
+const BOARD_W = COLS * CELL; // logical drawing size; the bitmap is scaled for HiDPI in fitCanvas()
+const BOARD_H = 520;
 const WIN_SATS_REWARD = 5;
 const REWARD_STORAGE_KEY = "tetrohash_deep_rewards_v1";
 const GENESIS_PREVIOUS_HASH = "00000000000000000001a7f4b9d2c5e8";
@@ -333,6 +335,8 @@ initProgress();
 const state = {
   running: false,
   won: false,
+  over: false,
+  flashUntil: 0,
   paused: false,
   aiLearningMode: true,
   mode: "tetris",
@@ -584,6 +588,26 @@ function announceBadges(ids) {
   if (badgeAnnouncerEl) badgeAnnouncerEl.textContent = `Badge unlocked: ${names.join(", ")}`;
 }
 
+let lastBoardLabel = "";
+// Screen-reader summary of the canvas; only touched when the text changes.
+function updateBoardLabel() {
+  if (!canvas) return;
+  const level = getCurrentLevel();
+  let label;
+  if (state.won) label = `TetroHash board. You won with ${state.score} points.`;
+  else if (state.over) label = `TetroHash board. Game over with ${state.score} points.`;
+  else if (!state.running) label = "TetroHash board. Press Start Game to begin.";
+  else {
+    label = `TetroHash board. Level ${state.level} of ${LEVELS.length}, ${level.name}. ` +
+      `${state.mode === "mining" ? "Mining a block" : "Stacking blocks"}. Score ${state.score}.` +
+      (state.paused ? " Paused." : "");
+  }
+  if (label !== lastBoardLabel) {
+    lastBoardLabel = label;
+    canvas.setAttribute("aria-label", label);
+  }
+}
+
 function updateDifficulty() {
   if (!learning) return;
 
@@ -649,6 +673,7 @@ function updateDifficulty() {
       : `Beat all ${LEVELS.length} levels to save ${WIN_SATS_REWARD} bonus sats here.`;
   }
   if (pauseButton) pauseButton.textContent = state.paused ? "Resume" : "Pause";
+  updateBoardLabel();
   if (learningModeButton) {
     learningModeButton.textContent = state.aiLearningMode ? "Hints: On" : "Hints: Off";
   }
@@ -717,32 +742,64 @@ function resetProgressData() {
   updateDifficulty();
 }
 
-function drawBackground() {
-  const level = getCurrentLevel();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// The themed grid is static per level, so it is painted once to an offscreen
+// canvas and blitted each frame (falls back to direct painting if unavailable).
+const bgCache = { key: "", canvas: null };
 
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+function paintBackground(c, level) {
+  c.clearRect(0, 0, BOARD_W, BOARD_H);
+
+  const gradient = c.createLinearGradient(0, 0, BOARD_W, BOARD_H);
   gradient.addColorStop(0, level.theme[0]);
   gradient.addColorStop(1, level.theme[1]);
 
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = gradient;
+  c.fillRect(0, 0, BOARD_W, BOARD_H);
 
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-  ctx.lineWidth = 1;
+  c.strokeStyle = "rgba(255, 255, 255, 0.08)";
+  c.lineWidth = 1;
 
-  for (let x = 0; x <= canvas.width; x += CELL) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
+  for (let x = 0; x <= BOARD_W; x += CELL) {
+    c.beginPath();
+    c.moveTo(x, 0);
+    c.lineTo(x, BOARD_H);
+    c.stroke();
   }
 
-  for (let y = 0; y <= canvas.height; y += CELL) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
+  for (let y = 0; y <= BOARD_H; y += CELL) {
+    c.beginPath();
+    c.moveTo(0, y);
+    c.lineTo(BOARD_W, y);
+    c.stroke();
+  }
+}
+
+function rebuildBackground(level, key) {
+  bgCache.key = key;
+  bgCache.canvas = null;
+  try {
+    const scale = canvasScale || 1;
+    const off = document.createElement("canvas");
+    off.width = Math.round(BOARD_W * scale);
+    off.height = Math.round(BOARD_H * scale);
+    const octx = typeof off.getContext === "function" ? off.getContext("2d") : null;
+    if (!octx) return;
+    octx.setTransform(scale, 0, 0, scale, 0, 0);
+    paintBackground(octx, level);
+    bgCache.canvas = off;
+  } catch {
+    bgCache.canvas = null;
+  }
+}
+
+function drawBackground() {
+  const level = getCurrentLevel();
+  const key = `${state.level}|${canvasScale}`;
+  if (bgCache.key !== key) rebuildBackground(level, key);
+  if (bgCache.canvas) {
+    ctx.drawImage(bgCache.canvas, 0, 0, BOARD_W, BOARD_H);
+  } else {
+    paintBackground(ctx, level);
   }
 }
 
@@ -920,7 +977,7 @@ function drawVictory() {
 
 function drawPausedOverlay() {
   ctx.fillStyle = "rgba(2, 11, 20, 0.76)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, BOARD_W, BOARD_H);
 
   ctx.fillStyle = "rgba(255,255,255,0.08)";
   ctx.fillRect(28, 176, 264, 154);
@@ -951,11 +1008,37 @@ function draw() {
     drawTetris();
   }
 
+  if (state.over && !state.won) {
+    drawGameOver();
+  }
+
   if (state.paused && !state.won) {
     drawPausedOverlay();
   }
 
+  drawFlash();
   drawToast();
+}
+
+function drawGameOver() {
+  ctx.fillStyle = "rgba(2, 11, 20, 0.82)";
+  ctx.fillRect(0, 0, BOARD_W, BOARD_H);
+  ctx.strokeStyle = "#ff5f7d";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 176, 264, 170);
+
+  drawText("GAME OVER", 62, 224, 26, "#ff5f7d", "1000");
+  drawText(`score: ${state.score}`, 62, 262, 13, "#ffffff", "900");
+  drawText(`blocks mined: ${state.blocksMined}/${LEVELS.length}`, 62, 286, 12, "#a6ff6f", "900");
+  drawText("Press Start Game to play again.", 44, 322, 11, "#b8cedd", "900");
+}
+
+// Brief white flash on a row clear. Skipped for reduced-motion users.
+function drawFlash() {
+  const left = state.flashUntil - Date.now();
+  if (left <= 0) return;
+  ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.22, left / 700)})`;
+  ctx.fillRect(0, 0, BOARD_W, BOARD_H);
 }
 
 function drawToast() {
@@ -1005,6 +1088,7 @@ function clearLines() {
     state.score += points;
     const chainText = Engine.chainLabel(state.clearChain);
     showToast(`+${points}${chainText ? ` · ${chainText}` : ""}`);
+    if (!prefersReducedMotion()) state.flashUntil = Date.now() + 160;
 
     sound.clear();
     learning.recordLineClear(cleared);
@@ -1276,7 +1360,7 @@ async function mineBatch() {
   state.miningBusy = false;
   state.combo = Math.max(0, state.combo - 1);
   gameMessageEl.textContent =
-    `Not yet — keep pressing Space. You need a hash starting with ${state.targetPrefix}.`;
+    `Not yet — ${state.attempts.toLocaleString("en-US")} tries so far (about ${Math.pow(16, state.targetZeros).toLocaleString("en-US")} expected on average). Keep pressing Space for a hash starting with ${state.targetPrefix}.`;
 
   updateDifficulty();
   draw();
@@ -1357,6 +1441,8 @@ function startGame() {
     state.runId += 1;
     state.running = true;
     state.won = false;
+    state.over = false;
+    state.flashUntil = 0;
     state.paused = false;
     state.mode = "tetris";
     state.grid = createGrid();
@@ -1411,6 +1497,8 @@ function resetGame() {
 
   state.running = false;
   state.won = false;
+  state.over = false;
+  state.flashUntil = 0;
   state.paused = false;
   state.mode = "tetris";
   state.grid = createGrid();
@@ -1472,6 +1560,7 @@ function endGame() {
   if (!state.running) return;
   state.running = false;
   state.won = false;
+  state.over = true;
   state.paused = false;
   cancelAnimationFrame(state.animationId);
 
@@ -1576,6 +1665,23 @@ function bindHoldRepeat(button, action) {
   });
 }
 
+// Crisp rendering on HiDPI screens: scale the bitmap, keep drawing in logical units.
+let canvasScale = 0;
+function fitCanvas() {
+  if (!canvas || !ctx) return;
+  // Bitmap pixels per logical unit = device pixel ratio x how much CSS enlarges the board.
+  const cssWidth = canvas.clientWidth || BOARD_W;
+  const wanted = Math.min(window.devicePixelRatio || 1, 2) * (cssWidth / BOARD_W);
+  const scale = Math.min(Math.max(Math.round(wanted * 4) / 4, 1), 2.25);
+  if (scale === canvasScale) return;
+  canvasScale = scale;
+  canvas.width = Math.round(BOARD_W * scale);
+  canvas.height = Math.round(BOARD_H * scale);
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  bgCache.key = "";
+  draw();
+}
+
 function bootGame() {
   const attach = (id, handler) => {
     const el = document.getElementById(id);
@@ -1628,6 +1734,17 @@ function bootGame() {
         resetArmedTimer = null;
         resetProgressButton.textContent = "Reset progress";
       }, 5000);
+    }
+  });
+
+  fitCanvas();
+  window.addEventListener("resize", fitCanvas);
+
+  // Don't lose a run when the tab or app is backgrounded (common on phones).
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden" && state.running && !state.paused && !state.won) {
+      togglePause();
+      gameMessageEl.textContent = "Paused because the page was hidden. Press Resume to continue.";
     }
   });
 

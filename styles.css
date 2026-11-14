@@ -1058,12 +1058,6 @@ summary:focus-visible,
   -webkit-touch-callout: none;
 }
 
-#gameCanvas {
-  max-width: 100%;
-  height: auto;
-  touch-action: manipulation;
-}
-
 @media (max-width: 1020px) {
   .progress-grid { grid-template-columns: 1fr; }
 }
@@ -1076,3 +1070,18 @@ summary:focus-visible,
     transition-duration: 0.01ms !important;
   }
 }
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--yellow);
+  color: #031624;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.skip-link:focus { top: 12px; }
