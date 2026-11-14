@@ -195,6 +195,10 @@
           (ok ? ". Independently verified with WebCrypto." : ".");
         if (name === "genesis" && ok) {
           p.result.textContent += ` This is Bitcoin's real Genesis nonce, and the hash matches block 0.`;
+          // Lets the game award the "Genesis Re-miner" badge (verified results only).
+          if (typeof scope.dispatchEvent === "function" && typeof scope.CustomEvent === "function") {
+            scope.dispatchEvent(new scope.CustomEvent("tetrohash:lab-genesis"));
+          }
         }
       } else if (result.status === "cancelled") {
         p.result.className = "lab-status";

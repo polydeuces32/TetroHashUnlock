@@ -18,6 +18,12 @@ const missionLessonEl = document.getElementById("missionLesson");
 const missionGoalEl = document.getElementById("missionGoal");
 const bestScoreEl = document.getElementById("bestScore");
 const highScoreListEl = document.getElementById("highScoreList");
+const progressSummaryEl = document.getElementById("progressSummary");
+const progressNoticeEl = document.getElementById("progressNotice");
+const levelStatsBodyEl = document.getElementById("levelStatsBody");
+const achievementGridEl = document.getElementById("achievementGrid");
+const resetProgressButton = document.getElementById("resetProgress");
+const badgeAnnouncerEl = document.getElementById("badgeAnnouncer");
 const achievementListEl = document.getElementById("achievementList");
 const blockHeightEl = document.getElementById("blockHeight");
 const transactionCountEl = document.getElementById("transactionCount");
@@ -44,6 +50,7 @@ const learning = window.TetroHashLearningEngine
   : null;
 const sound = window.TetroHashSoundEngine ? new window.TetroHashSoundEngine() : null;
 const Engine = window.TetroHashEngine || null;
+const Progress = window.TetroHashProgress || null;
 
 const COLS = 10;
 const ROWS = 16;
@@ -319,6 +326,9 @@ const dailyTarget = 3 + (todayKey.split("").reduce((sum, char) => sum + char.cha
 let rewardProfile = loadRewardProfile();
 let highScores = Engine ? Engine.loadHighScores(safeStorage()) : [];
 let toast = { text: "", until: 0 };
+let progress = Progress ? Progress.defaultProgress() : null;
+let uiDirty = true;
+initProgress();
 
 const state = {
   running: false,
@@ -339,6 +349,9 @@ const state = {
   combo: 0,
   bestCombo: 0,
   clearChain: 0,
+  levelMs: 0,
+  runMs: 0,
+  finalizedRunId: 0,
   runId: 0,
   runSats: 0,
   previousHash: GENESIS_PREVIOUS_HASH,
@@ -395,8 +408,9 @@ function saveRewardProfile() {
   }
 }
 
-function showToast(text, ms = 1400) {
-  toast = { text, until: Date.now() + ms };
+function showToast(text, ms = 1400, append = false) {
+  const live = append && toast.text && Date.now() < toast.until;
+  toast = { text: live ? `${toast.text} · ${text}` : text, until: Date.now() + ms };
 }
 
 function recordHighScore(won) {
@@ -410,6 +424,7 @@ function recordHighScore(won) {
     date: new Date().toISOString(),
   });
   highScores = result.list;
+  uiDirty = true;
   Engine.saveHighScores(safeStorage(), highScores);
   return result.rank;
 }
@@ -523,11 +538,50 @@ function friendlyPaceLabel(profile, level) {
   return "Steady pace";
 }
 
-function unlockAchievement(id) {
-  if (!ACHIEVEMENTS[id] || rewardProfile.achievements.includes(id)) return;
+function initProgress() {
+  if (!Progress) return;
+  const loaded = Progress.loadProgress(safeStorage(), { legacy: rewardProfile });
+  progress = loaded.progress;
+  if (loaded.status !== "ok" && loaded.status !== "new") Progress.saveProgress(safeStorage(), progress);
+  const notices = {
+    migrated: "Your earlier badges and best score were carried over.",
+    restored: "Saved progress was damaged, so the last good backup was restored.",
+    reset: "Saved progress was damaged and could not be restored, so it was rebuilt from whatever could be recovered.",
+  };
+  if (progressNoticeEl) progressNoticeEl.textContent = notices[loaded.status] || "";
+}
 
-  rewardProfile.achievements.push(id);
-  saveRewardProfile();
+// Single entry point for gameplay facts. Pure rules live in progress.js; this
+// persists the result, mirrors legacy badge ids, and announces new badges once.
+function recordEvent(event) {
+  if (!Progress) return [];
+  const result = Progress.applyEvent(progress, event, new Date().toISOString());
+  progress = result.progress;
+  let legacyChanged = false;
+  result.unlocked.forEach((id) => {
+    if (Object.hasOwn(ACHIEVEMENTS, id) && !rewardProfile.achievements.includes(id)) {
+      rewardProfile.achievements.push(id);
+      legacyChanged = true;
+    }
+  });
+  if (legacyChanged) saveRewardProfile();
+  Progress.saveProgress(safeStorage(), progress);
+  uiDirty = true;
+  announceBadges(result.unlocked);
+  return result.unlocked;
+}
+
+function badgeName(id) {
+  const def = Progress && Progress.ACHIEVEMENTS.find((a) => a.id === id);
+  return def ? def.name : id;
+}
+
+function announceBadges(ids) {
+  if (!ids.length) return;
+  const names = ids.map(badgeName);
+  const short = names.length === 1 && names[0].length <= 24 ? names[0] : `${names.length} badge${names.length > 1 ? "s" : ""}`;
+  showToast(`Badge: ${short}`, 2600, true);
+  if (badgeAnnouncerEl) badgeAnnouncerEl.textContent = `Badge unlocked: ${names.join(", ")}`;
 }
 
 function updateDifficulty() {
@@ -613,17 +667,21 @@ function updateDifficulty() {
             : friendlyPaceLabel(profile, level);
   }
 
-  renderAchievements();
-  renderHighScores();
+  if (uiDirty) {
+    uiDirty = false;
+    renderAchievements();
+    renderHighScores();
+    renderProgress();
+  }
   if (runReportEl) runReportEl.textContent = state.report;
 }
 
 function renderAchievements() {
   if (!achievementListEl) return;
 
-  achievementListEl.innerHTML = "";
+  achievementListEl.textContent = "";
 
-  const unlocked = rewardProfile.achievements.filter((id) => Object.hasOwn(ACHIEVEMENTS, id)).slice(-5);
+  const unlocked = progress ? Object.keys(progress.achievements).slice(-5) : [];
   if (unlocked.length === 0) {
     const empty = document.createElement("li");
     empty.textContent = "No badges yet — keep playing!";
@@ -633,9 +691,30 @@ function renderAchievements() {
 
   unlocked.forEach((id) => {
     const item = document.createElement("li");
-    item.textContent = ACHIEVEMENTS[id];
+    item.textContent = badgeName(id);
     achievementListEl.appendChild(item);
   });
+}
+
+function renderProgress() {
+  if (!progress || !Progress || !window.TetroHashProgressUI) return;
+  window.TetroHashProgressUI.render(document, Progress, progress, LEVELS, {
+    summary: progressSummaryEl,
+    levelsBody: levelStatsBodyEl,
+    badges: achievementGridEl,
+  });
+}
+
+function resetProgressData() {
+  if (!Progress) return;
+  Progress.resetProgress(safeStorage());
+  progress = Progress.defaultProgress();
+  Progress.saveProgress(safeStorage(), progress); // an explicit v2 record stops legacy re-migration
+  rewardProfile.achievements = [];
+  saveRewardProfile();
+  if (progressNoticeEl) progressNoticeEl.textContent = "Progress and badges were reset. High scores and bonus sats were kept.";
+  uiDirty = true;
+  updateDifficulty();
 }
 
 function drawBackground() {
@@ -929,8 +1008,7 @@ function clearLines() {
 
     sound.clear();
     learning.recordLineClear(cleared);
-    unlockAchievement("firstClear");
-    if (cleared >= 4) unlockAchievement("feeMarket");
+    recordEvent({ type: "rows", level: state.level, cleared, chain: state.clearChain });
 
     if (state.linesSinceMine >= level.linesToMine) {
       gameMessageEl.textContent =
@@ -1055,6 +1133,8 @@ function addMempoolSurge(rows = 0) {
 }
 
 function completeVictory() {
+  // Reward exactly once per run, however many times this is reached.
+  if (state.won || state.finalizedRunId === state.runId) return;
   state.running = false;
   state.won = true;
   state.paused = false;
@@ -1073,9 +1153,8 @@ function completeVictory() {
   });
   rewardProfile.rewardHistory = rewardProfile.rewardHistory.slice(0, 10);
 
-  unlockAchievement("champion");
   saveRewardProfile();
-  recordHighScore(true);
+  finalizeRun(true);
   const summary = learning.completeSession(state.score);
   sound.validBlock();
 
@@ -1089,6 +1168,7 @@ function completeVictory() {
 }
 
 function handleValidBlock(hash) {
+  if (!state.running || state.won) return;
   const completedLevel = getCurrentLevel();
   const reward = Engine.blockReward({
     baseReward: completedLevel.reward,
@@ -1110,15 +1190,19 @@ function handleValidBlock(hash) {
 
   sound.validBlock();
   learning.recordLineClear(1);
-  unlockAchievement("firstBlock");
-
-  if (completedLevel.boss) unlockAchievement("bossWin");
-  if (state.blocksMined >= 5) unlockAchievement("levelFive");
-  if (state.blocksMined >= 10) unlockAchievement("levelTen");
-  if (state.combo >= 3) unlockAchievement("comboThree");
+  recordEvent({
+    type: "block",
+    level: state.level,
+    attempts: state.attempts,
+    combo: state.combo,
+    boss: Boolean(completedLevel.boss),
+    runBlocks: state.blocksMined,
+    score: state.score,
+    levelMs: Math.round(state.levelMs),
+  });
   if (state.blocksMined >= dailyTarget && rewardProfile.lastDailyKey !== todayKey) {
     rewardProfile.lastDailyKey = todayKey;
-    unlockAchievement("daily");
+    recordEvent({ type: "daily" });
   }
 
   rewardProfile.bestScore = Math.max(rewardProfile.bestScore, state.score);
@@ -1135,7 +1219,9 @@ function handleValidBlock(hash) {
 
   state.level = getLevelByBlocksMined();
   state.mode = "tetris";
+  state.levelMs = 0;
   state.levelIntroUntil = Date.now() + 1200;
+  recordEvent({ type: "levelEnter", level: state.level });
 
   const nextLevel = getCurrentLevel();
   if (nextLevel.surgeRows) addMempoolSurge(nextLevel.surgeRows);
@@ -1202,6 +1288,13 @@ function update(time = 0) {
   const delta = time - state.lastTime;
   state.lastTime = time;
 
+  if (!state.paused) {
+    // Cap so a backgrounded tab (huge frame gap) cannot inflate play time.
+    const active = Math.min(Math.max(delta, 0), 250);
+    state.levelMs += active;
+    state.runMs += active;
+  }
+
   if (!state.paused && state.mode === "tetris") {
     state.dropCounter += delta;
 
@@ -1258,6 +1351,7 @@ function startGame() {
 
     sound.boot();
 
+    abandonRun();
     cancelAnimationFrame(state.animationId);
 
     state.runId += 1;
@@ -1278,6 +1372,8 @@ function startGame() {
     state.combo = 0;
     state.bestCombo = 0;
     state.clearChain = 0;
+    state.levelMs = 0;
+    state.runMs = 0;
     state.runSats = 0;
     state.nonce = 0;
     state.attempts = 0;
@@ -1293,6 +1389,7 @@ function startGame() {
     state.report = `Today's goal: finish ${dailyTarget} blocks if you can. Win the full game for ${WIN_SATS_REWARD} bonus sats.`;
 
     learning.startSession();
+    recordEvent({ type: "levelEnter", level: 1 });
     updateDifficulty();
     spawnPiece();
 
@@ -1308,6 +1405,7 @@ function startGame() {
 }
 
 function resetGame() {
+  abandonRun();
   cancelAnimationFrame(state.animationId);
   state.runId += 1;
 
@@ -1328,6 +1426,8 @@ function resetGame() {
   state.combo = 0;
   state.bestCombo = 0;
   state.clearChain = 0;
+  state.levelMs = 0;
+  state.runMs = 0;
   state.runSats = 0;
   state.nonce = 0;
   state.attempts = 0;
@@ -1350,6 +1450,24 @@ function resetGame() {
   draw();
 }
 
+function finalizeRun(won) {
+  if (state.finalizedRunId === state.runId) return 0;
+  state.finalizedRunId = state.runId;
+  recordEvent({
+    type: "runEnd",
+    won,
+    score: state.score,
+    bestCombo: state.bestCombo,
+    playMs: Math.round(state.runMs),
+  });
+  return recordHighScore(won);
+}
+
+// Leaving a scoring run (New game / Start while playing) still counts it.
+function abandonRun() {
+  if (state.running && !state.won && state.score > 0) finalizeRun(false);
+}
+
 function endGame() {
   if (!state.running) return;
   state.running = false;
@@ -1362,7 +1480,7 @@ function endGame() {
   rewardProfile.bestScore = Math.max(rewardProfile.bestScore, state.score);
   rewardProfile.bestLevel = Math.max(rewardProfile.bestLevel, state.blocksMined);
   saveRewardProfile();
-  const rank = recordHighScore(false);
+  const rank = finalizeRun(false);
 
   state.report =
     `Run ended: level ${state.level}, ${state.blocksMined} blocks mined, score ${state.score}, best ${summary.bestScore}. ${learning.getRunLesson(summary, state.blocksMined, false)}`;
@@ -1376,52 +1494,87 @@ function endGame() {
   draw();
 }
 
+function isTypingTarget(target) {
+  if (!target || typeof target.tagName !== "string") return false;
+  const tag = target.tagName.toUpperCase();
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable === true;
+}
+
+function mineOrDrop() {
+  if (state.mode === "mining") mineBatch();
+  else hardDrop();
+}
+
 document.addEventListener("keydown", (event) => {
+  // Never hijack typing in the Mining Lab inputs or browser shortcuts (Ctrl/Cmd+R, etc.).
+  if (isTypingTarget(event.target) || event.ctrlKey || event.metaKey || event.altKey) return;
+
+  const key = (event.key || "").toLowerCase();
+  const playing = state.running;
+  // While not playing, arrows/Space keep their normal page-scroll behavior.
+  const claim = () => { if (playing) event.preventDefault(); };
+
   if (event.key === "ArrowLeft") {
-    event.preventDefault();
+    claim();
     movePiece(-1);
-  }
-
-  if (event.key === "ArrowRight") {
-    event.preventDefault();
+  } else if (event.key === "ArrowRight") {
+    claim();
     movePiece(1);
-  }
-
-  if (event.key === "ArrowDown") {
-    event.preventDefault();
+  } else if (event.key === "ArrowDown") {
+    claim();
     softDrop();
-  }
-
-  if (event.key === "ArrowUp") {
-    event.preventDefault();
+  } else if (event.key === "ArrowUp" || key === "r") {
+    claim();
     rotatePiece();
-  }
-
-  if (event.key.toLowerCase() === "r") {
-    event.preventDefault();
-    rotatePiece();
-  }
-
-  if (event.key.toLowerCase() === "p") {
-    event.preventDefault();
+  } else if (key === "p") {
+    claim();
     togglePause();
-  }
-
-  if (event.code === "Space") {
-    event.preventDefault();
-
-    if (state.mode === "mining") {
-      mineBatch();
-    } else {
-      hardDrop();
-    }
-  }
-
-  if (event.key === "Escape") {
+  } else if (event.code === "Space") {
+    claim();
+    mineOrDrop();
+  } else if (event.key === "Escape") {
     event.preventDefault();
     resetGame();
   }
 });
+
+function prefersReducedMotion() {
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function scrollToEl(el, block) {
+  el?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block });
+}
+
+// Touch/mouse hold-to-repeat for left/right. Mouse and touch clicks (detail > 0) are
+// handled by pointer events; keyboard activation (detail === 0) still triggers once.
+function bindHoldRepeat(button, action) {
+  if (typeof window.PointerEvent !== "function") {
+    button.addEventListener("click", (event) => { event.preventDefault(); action(); });
+    return;
+  }
+  let delayTimer = null;
+  let repeatTimer = null;
+  const stop = () => {
+    clearTimeout(delayTimer);
+    clearInterval(repeatTimer);
+    delayTimer = null;
+    repeatTimer = null;
+  };
+  button.addEventListener("pointerdown", (event) => {
+    if (event.button !== undefined && event.button > 0) return;
+    event.preventDefault();
+    stop();
+    try { button.setPointerCapture(event.pointerId); } catch { /* not capturable */ }
+    action();
+    delayTimer = setTimeout(() => { repeatTimer = setInterval(action, 70); }, 220);
+  });
+  ["pointerup", "pointercancel", "lostpointercapture", "blur"].forEach((type) => button.addEventListener(type, stop));
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (event.detail === 0) action();
+  });
+}
 
 function bootGame() {
   const attach = (id, handler) => {
@@ -1435,7 +1588,7 @@ function bootGame() {
 
   attach("startGame", () => {
     startGame();
-    canvas?.scrollIntoView({ behavior: "smooth", block: "center" });
+    scrollToEl(canvas, "center");
   });
 
   attach("resetGame", resetGame);
@@ -1444,29 +1597,42 @@ function bootGame() {
 
   attach("heroStart", () => {
     startGame();
-    document.getElementById("game")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    canvas?.scrollIntoView({ behavior: "smooth", block: "center" });
+    scrollToEl(document.getElementById("game"), "start");
+    scrollToEl(canvas, "center");
   });
 
   document.querySelectorAll("[data-control]").forEach((button) => {
+    const control = button.dataset.control;
+    if (control === "left") return bindHoldRepeat(button, () => movePiece(-1));
+    if (control === "right") return bindHoldRepeat(button, () => movePiece(1));
+
     button.addEventListener("click", (event) => {
       event.preventDefault();
-      const control = button.dataset.control;
-
-      if (control === "left") movePiece(-1);
-      if (control === "right") movePiece(1);
       if (control === "rotate") rotatePiece();
       if (control === "drop") hardDrop();
       if (control === "pause") togglePause();
-      if (control === "mine") {
-        if (state.mode === "mining") {
-          mineBatch();
-        } else {
-          hardDrop();
-        }
-      }
+      if (control === "mine") mineOrDrop();
     });
   });
+
+  let resetArmedTimer = null;
+  resetProgressButton?.addEventListener("click", () => {
+    if (resetArmedTimer) {
+      clearTimeout(resetArmedTimer);
+      resetArmedTimer = null;
+      resetProgressButton.textContent = "Reset progress";
+      resetProgressData();
+    } else {
+      resetProgressButton.textContent = "Click again to erase progress";
+      resetArmedTimer = setTimeout(() => {
+        resetArmedTimer = null;
+        resetProgressButton.textContent = "Reset progress";
+      }, 5000);
+    }
+  });
+
+  // The Mining Lab fires this after a WebCrypto-verified Genesis re-mine.
+  window.addEventListener("tetrohash:lab-genesis", () => recordEvent({ type: "labGenesis" }));
 
   if (!canvas || !ctx) {
     showGameMessage("Game board failed to load. Please refresh the page.");

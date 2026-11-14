@@ -22,6 +22,10 @@ function makeEl(id) {
     listeners,
   };
   Object.defineProperty(el, "innerHTML", { get() { return this._h || ""; }, set(v) { this._h = v; if (v === "") this.children = []; } });
+  // Like the DOM: assigning textContent replaces all children.
+  let text = "";
+  delete el.textContent;
+  Object.defineProperty(el, "textContent", { get: () => text, set: (v) => { text = v; el.children = []; } });
   return el;
 }
 
@@ -68,7 +72,7 @@ function boot({ storage = {}, withSound = true } = {}) {
   });
   window.window = window;
   ctx.self = window; // browsers: self === window (engine.js UMD attaches to self)
-  const files = ["learning.js", "engine.js"].concat(withSound ? ["sound.js"] : []).concat(["game.js"]);
+  const files = ["learning.js", "engine.js", "progress.js", "progress-ui.js"].concat(withSound ? ["sound.js"] : []).concat(["game.js"]);
   for (const f of files) vm.runInContext(read(f), ctx, { filename: f });
   const run = (code) => vm.runInContext(code, ctx);
   const key = (k, code) => {

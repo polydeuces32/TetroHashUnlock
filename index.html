@@ -27,6 +27,7 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a href="#game">Play</a>
       <a href="#how">How to Play</a>
+      <a href="#progress">Progress</a>
       <a href="#lab">Mining Lab</a>
     </nav>
   </header>
@@ -154,6 +155,20 @@
             Press Start Game. Clear a row, then press Space to mine.
           </p>
 
+          <details class="how-mining">
+            <summary>What is the mining step really doing?</summary>
+            <p>
+              When you press Space, the game hashes your block's text plus a counter (the
+              <em>nonce</em>) with SHA-256 and checks whether the result starts with enough zeros.
+              Each extra zero makes a win 16× less likely, so you mostly just keep trying.
+            </p>
+            <p>
+              Real Bitcoin does the same trick with an 80-byte block header, hashed twice, against a
+              target trillions of times harder. This game's version is a simulation. See the
+              <a href="#lab">Mining Lab</a> for real headers, including Bitcoin's first block.
+            </p>
+          </details>
+
           <div class="touch-controls" aria-label="Touch controls">
             <button type="button" data-control="left">←</button>
             <button type="button" data-control="rotate">↻</button>
@@ -206,6 +221,47 @@
             </ul>
           </div>
         </aside>
+      </div>
+    </section>
+
+    <section id="progress" class="progress-section section-shell" aria-labelledby="progressTitle">
+      <div class="section-heading">
+        <p class="date-label">Saved on this device</p>
+        <h2 id="progressTitle">YOUR PROGRESS</h2>
+      </div>
+
+      <p id="progressNotice" class="lab-fineprint" role="status"></p>
+      <p id="badgeAnnouncer" class="sr-only" role="status" aria-live="polite"></p>
+
+      <dl id="progressSummary" class="progress-summary"></dl>
+
+      <div class="progress-grid">
+        <div class="panel progress-card">
+          <h3>Levels</h3>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Per-level statistics">
+            <table class="level-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Level</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Fewest hashes</th>
+                  <th scope="col">Fastest</th>
+                  <th scope="col">Rows</th>
+                </tr>
+              </thead>
+              <tbody id="levelStatsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel progress-card">
+          <h3>Badges</h3>
+          <ul id="achievementGrid" class="badge-grid"></ul>
+          <p class="lab-fineprint">Badges are local to this browser. They are not money and are not shared anywhere.</p>
+          <button type="button" id="resetProgress" class="button secondary">Reset progress</button>
+          <p class="lab-fineprint">Resetting keeps your high scores and bonus sats.</p>
+        </div>
       </div>
     </section>
 
@@ -322,7 +378,9 @@
   <script src="./learning.js?v=4"></script>
   <script src="./sound.js?v=4"></script>
   <script src="./engine.js?v=1"></script>
-  <script src="./game.js?v=4"></script>
+  <script src="./progress.js?v=1"></script>
+  <script src="./progress-ui.js?v=1"></script>
+  <script src="./game.js?v=5"></script>
   <script src="./sha256.js?v=1"></script>
   <script src="./bitcoin.js?v=1"></script>
   <script src="./miner-controller.js?v=1"></script>
