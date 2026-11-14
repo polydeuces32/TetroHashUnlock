@@ -53,7 +53,14 @@ python3 -m http.server 8000
 ```bash
 node scripts/test_engine.js    # engine unit tests
 node scripts/test_unified.js   # file/structure checks
+node scripts/test_mining.js    # SHA-256, Bitcoin header math, cancellable miner
+node scripts/test_mining_ui.js # Mining Lab UI (stub DOM)
+node scripts/test_game_integration.js
 ```
+
+## Mining Lab
+
+The **Mining Lab** section hashes real 80-byte Bitcoin block headers with double SHA-256 in a cancellable Web Worker: verify SHA-256 against WebCrypto, re-mine Bitcoin's Genesis block, or practise on a target you choose. It is educational only: it does not connect to the network, and the live network is about 10^14 times harder than Genesis. Files: `sha256.js`, `bitcoin.js`, `miner-controller.js`, `mining-worker.js`, `mining-lab.js`.
 
 Mining here is an educational simulation: real SHA-256, but a tiny leading-zero target. It is not connected to the Bitcoin network.
 
