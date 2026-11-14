@@ -11,10 +11,11 @@
     content="Play Tetris, clear rows, and learn how Bitcoin mining works — one friendly level at a time."
   />
 
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css?v=2" />
 </head>
 
 <body>
+  <a class="skip-link" href="#game">Skip to the game</a>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="TetroHash home">
       <span class="brand-mark">◆</span>
@@ -27,6 +28,8 @@
     <nav class="nav-links" aria-label="Main navigation">
       <a href="#game">Play</a>
       <a href="#how">How to Play</a>
+      <a href="#progress">Progress</a>
+      <a href="#lab">Mining Lab</a>
     </nav>
   </header>
 
@@ -103,6 +106,11 @@
             </div>
 
             <div>
+              <dt>Best score</dt>
+              <dd id="bestScore">0</dd>
+            </div>
+
+            <div>
               <dt>Bonus saved</dt>
               <dd id="satsBalance">0</dd>
             </div>
@@ -142,11 +150,25 @@
         </aside>
 
         <section class="game-card" aria-label="TetroHash game board">
-          <canvas id="gameCanvas" width="320" height="520"></canvas>
+          <canvas id="gameCanvas" width="320" height="520" role="img" aria-label="TetroHash game board"></canvas>
 
-          <p id="gameMessage" class="game-message">
+          <p id="gameMessage" class="game-message" role="status" aria-live="polite">
             Press Start Game. Clear a row, then press Space to mine.
           </p>
+
+          <details class="how-mining">
+            <summary>What is the mining step really doing?</summary>
+            <p>
+              When you press Space, the game hashes your block's text plus a counter (the
+              <em>nonce</em>) with SHA-256 and checks whether the result starts with enough zeros.
+              Each extra zero makes a win 16× less likely, so you mostly just keep trying.
+            </p>
+            <p>
+              Real Bitcoin does the same trick with an 80-byte block header, hashed twice, against a
+              target trillions of times harder. This game's version is a simulation. See the
+              <a href="#lab">Mining Lab</a> for real headers, including Bitcoin's first block.
+            </p>
+          </details>
 
           <div class="touch-controls" aria-label="Touch controls">
             <button type="button" data-control="left">←</button>
@@ -187,6 +209,13 @@
           </div>
 
           <div class="mini-panel">
+            <h3>High scores</h3>
+            <ol id="highScoreList" class="achievement-list">
+              <li>No scores yet — finish a run!</li>
+            </ol>
+          </div>
+
+          <div class="mini-panel">
             <h3>Badges</h3>
             <ul id="achievementList" class="achievement-list">
               <li>No badges yet — keep playing!</li>
@@ -194,6 +223,148 @@
           </div>
         </aside>
       </div>
+    </section>
+
+    <section id="progress" class="progress-section section-shell" aria-labelledby="progressTitle">
+      <div class="section-heading">
+        <p class="date-label">Saved on this device</p>
+        <h2 id="progressTitle">YOUR PROGRESS</h2>
+      </div>
+
+      <p id="progressNotice" class="lab-fineprint" role="status"></p>
+      <p id="badgeAnnouncer" class="sr-only" role="status" aria-live="polite"></p>
+
+      <dl id="progressSummary" class="progress-summary"></dl>
+
+      <div class="progress-grid">
+        <div class="panel progress-card">
+          <h3>Levels</h3>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Per-level statistics">
+            <table class="level-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Level</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Fewest hashes</th>
+                  <th scope="col">Fastest</th>
+                  <th scope="col">Rows</th>
+                </tr>
+              </thead>
+              <tbody id="levelStatsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel progress-card">
+          <h3>Badges</h3>
+          <ul id="achievementGrid" class="badge-grid"></ul>
+          <p class="lab-fineprint">Badges are local to this browser. They are not money and are not shared anywhere.</p>
+          <button type="button" id="resetProgress" class="button secondary">Reset progress</button>
+          <p class="lab-fineprint">Resetting keeps your high scores and bonus sats.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="lab" class="lab-section section-shell" aria-labelledby="labTitle">
+      <div class="section-heading">
+        <p class="date-label">Learn how mining really works</p>
+        <h2 id="labTitle">MINING LAB</h2>
+      </div>
+
+      <p class="lab-banner" role="note">
+        <strong>Educational, not a miner for the real network.</strong>
+        The lab uses real SHA-256 and the real 80-byte Bitcoin block header, but your browser
+        cannot mine live Bitcoin blocks. Nothing here connects to the network, uses a wallet, or earns coins.
+      </p>
+
+      <div class="lab-compare" role="table" aria-label="Three kinds of mining compared">
+        <div role="row" class="lab-compare-head">
+          <span role="columnheader"></span>
+          <span role="columnheader">In-game mining</span>
+          <span role="columnheader">Mining Lab</span>
+          <span role="columnheader">Real Bitcoin network</span>
+        </div>
+        <div role="row">
+          <span role="rowheader">Hash function</span>
+          <span role="cell">SHA-256, once</span>
+          <span role="cell">SHA-256 twice (like Bitcoin)</span>
+          <span role="cell">SHA-256 twice</span>
+        </div>
+        <div role="row">
+          <span role="rowheader">Input</span>
+          <span role="cell">Made-up text + nonce</span>
+          <span role="cell">Real 80-byte block header</span>
+          <span role="cell">Real 80-byte block header</span>
+        </div>
+        <div role="row">
+          <span role="rowheader">Target</span>
+          <span role="cell">2–4 leading hex zeros</span>
+          <span role="cell">Genesis target, or one you pick</span>
+          <span role="cell" id="labNetworkTarget">Far harder</span>
+        </div>
+        <div role="row">
+          <span role="rowheader">Pays out</span>
+          <span role="cell">Game points</span>
+          <span role="cell">Nothing</span>
+          <span role="cell">Block reward + fees</span>
+        </div>
+      </div>
+      <p class="lab-fineprint" id="labSnapshotNote"></p>
+
+      <div class="lab-grid">
+        <article class="panel lab-card" aria-labelledby="shaTitle">
+          <h3 id="shaTitle">1. Verify SHA-256</h3>
+          <p class="lab-help">Type anything. Two independent implementations hash it: this page's code and your browser's built-in WebCrypto.</p>
+          <label for="shaInput">Text to hash</label>
+          <input id="shaInput" type="text" value="abc" maxlength="500" autocomplete="off" spellcheck="false" />
+          <dl class="lab-out">
+            <dt>TetroHash code</dt>
+            <dd id="shaOwn" class="mono">…</dd>
+            <dt>Browser WebCrypto</dt>
+            <dd id="shaWeb" class="mono">…</dd>
+          </dl>
+          <p id="shaMatch" class="lab-status" role="status">Checking…</p>
+          <button type="button" id="shaSelfTest" class="button secondary">Run self-test (NIST vectors + Genesis block)</button>
+          <ul id="selfTestList" class="lab-list" aria-live="polite"></ul>
+        </article>
+
+        <article class="panel lab-card" aria-labelledby="genesisTitle">
+          <h3 id="genesisTitle">2. Re-mine Bitcoin's Genesis block</h3>
+          <p class="lab-help">Block 0 (January 2009). We start a little before the real nonce and hash until we find it, using Bitcoin's actual rules.</p>
+          <dl class="lab-out lab-fields" id="genesisFields"></dl>
+          <label for="genesisHead">Start this far before the real nonce</label>
+          <select id="genesisHead">
+            <option value="1000000">1 million hashes (≈ 1 s)</option>
+            <option value="5000000" selected>5 million hashes (a few seconds)</option>
+            <option value="50000000">50 million hashes (cancel it if you like)</option>
+          </select>
+          <div class="lab-actions">
+            <button type="button" id="genesisStart" class="button primary">Start mining</button>
+            <button type="button" id="genesisCancel" class="button secondary" disabled>Cancel</button>
+          </div>
+          <progress id="genesisProgress" max="100" value="0" aria-label="Genesis mining progress"></progress>
+          <p id="genesisStats" class="lab-stats mono" aria-hidden="true"></p>
+          <p id="genesisResult" class="lab-status" role="status"></p>
+        </article>
+
+        <article class="panel lab-card" aria-labelledby="practiceTitle">
+          <h3 id="practiceTitle">3. Practice on a target you choose</h3>
+          <p class="lab-help">Each extra zero bit doubles the work on average. This is how difficulty works.</p>
+          <label for="practiceBits">Leading zero bits (1–40)</label>
+          <input id="practiceBits" type="number" min="1" max="40" value="22" inputmode="numeric" />
+          <p class="lab-fineprint" id="practiceExpect"></p>
+          <div class="lab-actions">
+            <button type="button" id="practiceStart" class="button primary">Start mining</button>
+            <button type="button" id="practiceCancel" class="button secondary" disabled>Cancel</button>
+          </div>
+          <progress id="practiceProgress" max="100" value="0" aria-label="Practice mining progress"></progress>
+          <p id="practiceStats" class="lab-stats mono" aria-hidden="true"></p>
+          <p id="practiceResult" class="lab-status" role="status"></p>
+        </article>
+      </div>
+
+      <p class="lab-fineprint" id="labRunMode"></p>
     </section>
   </main>
 
@@ -205,8 +376,15 @@
     <div class="shape shape-three"></div>
   </footer>
 
-  <script src="./learning.js?v=4"></script>
+  <script src="./learning.js?v=5"></script>
   <script src="./sound.js?v=4"></script>
-  <script src="./game.js?v=4"></script>
+  <script src="./engine.js?v=1"></script>
+  <script src="./progress.js?v=1"></script>
+  <script src="./progress-ui.js?v=1"></script>
+  <script src="./game.js?v=5"></script>
+  <script src="./sha256.js?v=1"></script>
+  <script src="./bitcoin.js?v=1"></script>
+  <script src="./miner-controller.js?v=1"></script>
+  <script src="./mining-lab.js?v=1"></script>
 </body>
 </html>
